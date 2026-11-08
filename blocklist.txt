@@ -1,0 +1,36 @@
+# Lista blokowanych stron - jedna domena na linię.
+# Wystarczy domena główna (facebook.com) - skrypt sam doda www. i m.
+# Inne subdomeny (np. web.facebook.com) trzeba wpisać osobno.
+# Linie zaczynające się od # są komentarzami.
+
+# Facebook / Messenger
+facebook.com
+web.facebook.com
+messenger.com
+
+# Instagram
+instagram.com
+
+# X / Twitter
+x.com
+twitter.com
+mobile.twitter.com
+
+# TikTok
+tiktok.com
+
+# YouTube (odkomentuj, jeśli nie potrzebujesz go do pracy)
+# youtube.com
+# youtu.be
+
+# Reddit
+reddit.com
+old.reddit.com
+new.reddit.com
+
+# LinkedIn (odkomentuj, jeśli chcesz)
+# linkedin.com
+
+# Portale informacyjne - dopisz swoje
+# wykop.pl
+# onet.pl
