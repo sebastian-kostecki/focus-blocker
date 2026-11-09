@@ -1,0 +1,26 @@
+name: Release
+
+# Push a tag like v1.0.0 to publish a release with a ready-to-install ZIP.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build ZIP
+        run: git archive --format=zip --prefix=FocusBlocker/ -o "FocusBlocker-${GITHUB_REF_NAME}.zip" "${GITHUB_REF_NAME}"
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" "FocusBlocker-${GITHUB_REF_NAME}.zip" \
+            --title "FocusBlocker ${GITHUB_REF_NAME}" \
+            --generate-notes

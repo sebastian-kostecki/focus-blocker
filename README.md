@@ -1,143 +1,163 @@
 # FocusBlocker
 
-Blokuje rozpraszające strony (Facebook, Instagram, X, TikTok, Reddit…) w godzinach pracy.
-Działa na Windows 10/11, nie wymaga instalowania żadnych programów – korzysta z wbudowanego
-PowerShella, pliku `hosts` i Harmonogramu zadań.
+**A website blocker for Windows that you can't switch off once it starts.**
+Blocks distracting sites (Facebook, Instagram, X, TikTok, Reddit…) during your working hours –
+in every browser and app – using only what already ships with Windows: PowerShell, the `hosts`
+file and Task Scheduler.
 
-Najważniejsza zasada: **trwającej blokady nie da się wyłączyć ani skrócić** – ani z menu,
-ani przez ponowną instalację, ani przez odinstalowanie. Można ją tylko przedłużyć.
+[![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#installation)
+[![PowerShell 5.1](https://img.shields.io/badge/PowerShell-5.1-5391FE?logo=powershell&logoColor=white)](#how-it-works)
+[![Chrome | Edge extension](https://img.shields.io/badge/extension-Chrome%20%7C%20Edge-4285F4?logo=googlechrome&logoColor=white)](extension/)
+[![No dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#how-it-works)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-## Jak to działa
+🇵🇱 [Polska wersja README](README.pl.md)
 
-```
- Harmonogram zadań                      C:\Windows\System32\drivers\etc\hosts
- ┌──────────────────────┐   co minutę   ┌───────────────────────────────────────┐
- │ FocusBlocker         │──────────────▶│ # >>> FocusBlocker START               │
- │  (blocker.ps1)       │  dopisuje lub │ 0.0.0.0 facebook.com                   │
- └──────────────────────┘  usuwa sekcję │ 0.0.0.0 instagram.com  ...             │
-          ▲                             │ # <<< FocusBlocker END                 │
-          │ czyta                       └───────────────────────────────────────┘
- ┌──────────────────────┐                          │ facebook.com -> 0.0.0.0
- │ config.json          │ harmonogram, tekst       ▼ (połączenie się nie udaje)
- │ blocklist.txt        │ lista stron      ┌──────────────────────────────┐
- │ state.json           │ blokada ręczna   │ Przeglądarka + rozszerzenie  │
- └──────────────────────┘                  │ FocusBlocker przekierowuje na│
-          ▲                                │ stronę z komunikatem         │
-          │ zmienia                        └──────────────┬───────────────┘
- ┌──────────────────────┐                                 │ /status, /blocked
- │ focus.ps1 (menu)     │                  ┌──────────────▼───────────────┐
- └──────────────────────┘                  │ FocusBlocker-Page            │
-                                           │ server.ps1 – 127.0.0.1:47615 │
-                                           └──────────────────────────────┘
-```
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/blocked-dark.png">
+    <img src="docs/images/blocked-light.png" width="620" alt="Block page shown by the browser extension: the blocked site, your message, time left and today's attempt count">
+  </picture>
+</p>
 
-1. **Plik `hosts`** – Windows najpierw sprawdza ten plik, zanim zapyta serwer DNS. Wpis
-   `0.0.0.0 facebook.com` sprawia, że komputer „myśli”, że Facebook jest pod adresem, z którym
-   nie da się połączyć. Działa to we wszystkich przeglądarkach i aplikacjach naraz.
-2. **Zadanie „FocusBlocker”** uruchamia się co minutę (i przy starcie Windows) jako konto SYSTEM.
-   Sprawdza, czy teraz trwa blokada (harmonogram albo blokada ręczna), i dopisuje lub usuwa
-   sekcję FocusBlockera w pliku `hosts`. Resztę pliku zostawia w spokoju. Jeśli ktoś ręcznie
-   usunie wpisy, wrócą w ciągu minuty.
-3. **Zadanie „FocusBlocker-Page”** uruchamia mały lokalny serwer WWW (`server.ps1`) dostępny
-   tylko z tego komputera pod `http://127.0.0.1:47615`. Pokazuje stronę z komunikatem i podaje
-   stan blokady rozszerzeniu. Co 30 s dodatkowo pilnuje pliku `hosts`.
-4. **Rozszerzenie przeglądarki** (Chrome/Edge) zamiast błędu połączenia pokazuje stronę
-   z Twoim tekstem, czasem do końca blokady i licznikiem prób. Zamienia też karty, które były
-   otwarte w chwili rozpoczęcia blokady.
+> [!NOTE]
+> The user interface (terminal menu and block page) is currently in Polish.
 
-### Dlaczego potrzebne jest rozszerzenie?
+## Features
 
-Prawie wszystkie serwisy działają po HTTPS. Sam plik `hosts` nie może podsunąć przeglądarce
-własnej strony zamiast facebook.com, bo przeglądarka zażąda certyfikatu Facebooka – skończy
-się błędem bezpieczeństwa. Jedyną alternatywą byłoby zainstalowanie własnego certyfikatu
-głównego (CA) w systemie, co osłabia bezpieczeństwo całego komputera. Rozszerzenie robi to
-samo bezpiecznie. **Blokada działa także bez rozszerzenia** – wtedy zobaczysz zwykły błąd
-połączenia zamiast komunikatu.
+- **No way back** – a running block can't be stopped or shortened: not from the menu, not by
+  reinstalling, not by uninstalling. It can only be extended.
+- **Weekly schedule** – e.g. Mon–Fri 09:00–17:00; ranges can cross midnight (22:00–02:00).
+- **Focus now** – start a block on demand: 25 min, 50 min, 1.5 h, 2 h, until end of day or any
+  custom time (up to 7 days).
+- **Works everywhere** – blocking happens in the `hosts` file, so it covers every browser and app.
+- **Self-healing** – remove the entries by hand and they're back within a minute.
+- **Friendly block page** – instead of a connection error, the Chrome/Edge extension shows your
+  own message, the time left and how many times you've tried today. Light and dark mode.
+- **Zero dependencies** – nothing to download or install besides the scripts themselves.
 
-## Instalacja
+## Installation
 
-1. Rozpakuj paczkę, np. do `Dokumenty\FocusBlocker`.
-2. Otwórz **PowerShell jako administrator** (Start → wpisz „PowerShell” → „Uruchom jako administrator”):
+1. Download `FocusBlocker-<version>.zip` from [Releases](../../releases/latest) and extract it,
+   e.g. to `Documents` – you'll get a `FocusBlocker` folder.
+2. Open **PowerShell as administrator** and run:
 
    ```powershell
    cd "$HOME\Documents\FocusBlocker"
    powershell -ExecutionPolicy Bypass -File .\install.ps1
    ```
 
-3. Zainstaluj rozszerzenie:
-   - otwórz `chrome://extensions` (w Edge: `edge://extensions`),
-   - włącz **Tryb dewelopera**,
-   - kliknij **Załaduj rozpakowane** i wskaż folder `C:\ProgramData\FocusBlocker\extension`.
+3. Load the browser extension:
+   - open `chrome://extensions` (Edge: `edge://extensions`),
+   - turn on **Developer mode**,
+   - click **Load unpacked** and select `C:\ProgramData\FocusBlocker\extension`.
 
-Gotowe. W menu Start pojawi się skrót **FocusBlocker**.
+That's it – a **FocusBlocker** shortcut appears in the Start menu.
 
-## Obsługa – menu w terminalu
+## Usage
 
-Uruchom skrót **FocusBlocker** z menu Start (Windows zapyta o uprawnienia administratora).
+Launch **FocusBlocker** from the Start menu (Windows will ask for administrator rights).
 
-```
-  FocusBlocker
-  ──────────────────────────────────────────────────
-  ● BLOKADA AKTYWNA   do 17:00  (zostało 2 h 13 min)
-    powód: harmonogram
-    stron na liście: 12 · przedziałów: 1 · strona blokady: działa
-  ──────────────────────────────────────────────────
+<p align="center">
+  <img src="docs/images/terminal-menu.png" width="620" alt="FocusBlocker terminal menu showing an active block until 17:00">
+</p>
 
-   1  Przedłuż blokadę
-   2  Lista stron
-   3  Harmonogram
-   4  Tekst na stronie blokady
-   5  Dziennik
-   0  Wyjście
-```
-
-| Opcja | Co robi | W trakcie blokady |
+| Option | What it does | While a block is active |
 |---|---|---|
-| 1 | Blokada od razu: 25 min, 50 min, 1,5 h, 2 h, do końca dnia albo własny czas (np. `90` lub `16:30`) | tylko przedłużenie |
-| 2 | Dodawanie i usuwanie stron (można dodać kilka po przecinku) | tylko dodawanie |
-| 3 | Dodawanie i usuwanie przedziałów harmonogramu, np. `pon-pt` 09:00–12:00 | tylko dodawanie |
-| 4 | Tekst wyświetlany na stronie blokady | tak |
-| 5 | Ostatnie wpisy w dzienniku | tak |
+| 1 | Start a block now: 25 min, 50 min, 1.5 h, 2 h, until end of day or a custom time (`90` or `16:30`) | extend only |
+| 2 | Add or remove sites (several at once, comma-separated) | add only |
+| 3 | Add or remove schedule ranges, e.g. `pon-pt` 09:00–12:00 | add only |
+| 4 | Message shown on the block page | yes |
+| 5 | Recent log entries | yes |
 
-Dni w harmonogramie wpisuje się po polsku lub angielsku: `pon-pt`, `pon,sr,pt`, `sob nd`,
-`codziennie`, `mon-fri`. Przedział może przechodzić przez północ (np. 22:00–02:00).
+Days can be typed in Polish or English: `pon-pt`, `pon,sr,pt`, `sob nd`, `codziennie`, `mon-fri`.
 
-## Pliki (`C:\ProgramData\FocusBlocker`)
+There is also a non-interactive script used by Task Scheduler:
 
-| Plik | Zawartość |
+```powershell
+.\blocker.ps1 -Mode Status          # show current state
+.\blocker.ps1 -Mode On -Minutes 60  # start a 60-minute block
+.\blocker.ps1 -Mode Auto            # sync the hosts file with the schedule
+```
+
+## How it works
+
+```mermaid
+flowchart LR
+    menu["focus.ps1<br/>terminal menu"] -->|edits| data
+    subgraph data["C:\ProgramData\FocusBlocker"]
+        direction TB
+        cfg["config.json<br/>schedule, message"]
+        list["blocklist.txt<br/>sites"]
+        state["state.json<br/>manual block"]
+    end
+    data --> task["Task: FocusBlocker<br/>blocker.ps1 · every minute, as SYSTEM"]
+    data --> server["Task: FocusBlocker-Page<br/>server.ps1 · 127.0.0.1:47615"]
+    task -->|adds / removes its section| hosts[("hosts file")]
+    server -.->|re-syncs every 30 s| hosts
+    hosts -->|"blocked domains → 0.0.0.0"| apps["All browsers and apps"]
+    ext["Browser extension<br/>Chrome / Edge"] -->|"GET /status, shows /blocked"| server
+```
+
+1. **The `hosts` file** – Windows checks it before asking DNS. An entry like
+   `0.0.0.0 facebook.com` makes the site unreachable in every browser and app at once.
+   FocusBlocker only touches its own marked section and leaves the rest of the file alone.
+2. **Task “FocusBlocker”** runs every minute (and at startup) as SYSTEM. It checks whether a block
+   should be active (schedule or manual block) and adds or removes the section accordingly.
+3. **Task “FocusBlocker-Page”** runs a tiny local web server (`server.ps1`), reachable only from
+   this machine. It serves the block page and the block state for the extension, and re-checks
+   the `hosts` file every 30 s as a second line of defence.
+4. **The browser extension** (Chrome/Edge, Manifest V3) redirects blocked sites to the block page
+   and also swaps out tabs that were already open when the block started.
+
+### Why an extension?
+
+Almost every site uses HTTPS. The `hosts` file alone can't serve a custom page in place of
+facebook.com – the browser expects Facebook's certificate and would show a security error. The
+only alternative would be installing a custom root CA, which weakens the security of the whole
+machine. The extension does the same thing safely. **Blocking works without the extension** too;
+you just see a plain connection error instead of the message.
+
+## Files
+
+Everything is installed to `C:\ProgramData\FocusBlocker` (writable by administrators only).
+
+| File | Purpose |
 |---|---|
-| `focus.ps1` | menu w terminalu |
-| `blocker.ps1` | wersja dla Harmonogramu zadań (`-Mode Auto`, `-Mode On -Minutes 60`, `-Mode Status`) |
-| `server.ps1` | lokalna strona blokady |
-| `lib.ps1` | wspólne funkcje |
-| `blocklist.txt` | lista stron (jedna domena na linię, `#` = komentarz) |
-| `config.json` | harmonogram i tekst komunikatu |
-| `state.json` | koniec blokady ręcznej |
-| `blocker.log` | dziennik |
-| `hosts.backup` | kopia pliku `hosts` sprzed pierwszej zmiany |
-| `extension\` | rozszerzenie przeglądarki |
+| `focus.ps1` | terminal menu |
+| `blocker.ps1` | non-interactive version for Task Scheduler |
+| `server.ps1` | local block page server |
+| `lib.ps1` | shared functions |
+| `blocklist.txt` | blocked sites (one domain per line, `#` = comment) |
+| `config.json` | schedule and block page message |
+| `state.json` | end of the manual block |
+| `blocker.log` | log |
+| `hosts.backup` | copy of `hosts` from before the first change |
+| `extension\` | browser extension |
 
-Zapisywać w tym folderze może tylko administrator.
+## Updating and uninstalling
 
-## Aktualizacja i odinstalowanie
-
-- **Aktualizacja:** uruchom `install.ps1` z nowej wersji. Lista stron i harmonogram zostaną zachowane.
-- **Odinstalowanie** (jako administrator):
+- **Update:** run `install.ps1` from the new version. Your site list and schedule are kept.
+- **Uninstall** (as administrator):
 
   ```powershell
   powershell -ExecutionPolicy Bypass -File "C:\ProgramData\FocusBlocker\uninstall.ps1"
   ```
 
-  Rozszerzenie usuń ręcznie w `chrome://extensions`.
+  Remove the extension manually in `chrome://extensions`.
 
-Obie operacje odmówią działania, dopóki trwa blokada.
+Both refuse to run while a block is active.
 
-## Uczciwie o ograniczeniach
+## Limitations
 
-- Jesteś administratorem tego komputera, więc zdeterminowana osoba zawsze może ręcznie usunąć
-  zadania z Harmonogramu zadań. FocusBlocker nie jest więzieniem – ma sprawić, że ominięcie
-  blokady wymaga tyle wysiłku, że łatwiej wrócić do pracy.
-- Blokada nie działa przez VPN ani proxy z własnym DNS.
-- Plik `hosts` nie obsługuje symboli wieloznacznych. Do domen głównych automatycznie dochodzą
-  `www.` i `m.`; inne subdomeny dopisz osobno (rozszerzenie i tak łapie wszystkie subdomeny).
-- Rozszerzenie działa w Chrome i Edge. W Firefoksie blokada działa, ale bez strony z komunikatem.
+- You are the administrator of your computer, so a determined person can always delete the
+  scheduled tasks by hand. FocusBlocker isn't a prison – it makes getting around the block take
+  enough effort that going back to work is easier.
+- It doesn't work through a VPN or a proxy with its own DNS.
+- The `hosts` file has no wildcards. `www.` and `m.` are added to root domains automatically;
+  other subdomains need their own line (the extension catches all subdomains anyway).
+- The extension works in Chrome and Edge. In Firefox the block works, but without the message page.
+
+## License
+
+[MIT](LICENSE)

@@ -1,0 +1,4 @@
+# Keep repo-only files out of release ZIPs and GitHub's "Download ZIP"
+/docs            export-ignore
+/.github         export-ignore
+/.gitattributes  export-ignore
