@@ -1,0 +1,8 @@
+{
+  "extDescription": {
+    "message": "Shows a friendly message page instead of the sites FocusBlocker has blocked."
+  },
+  "actionTitle": {
+    "message": "FocusBlocker – block status"
+  }
+}

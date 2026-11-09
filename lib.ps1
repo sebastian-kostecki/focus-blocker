@@ -16,16 +16,16 @@ $FB_ConfigPath    = Join-Path $FB_Dir 'config.json'
 $FB_StatePath     = Join-Path $FB_Dir 'state.json'
 $FB_LogPath       = Join-Path $FB_Dir 'blocker.log'
 
+# Znaczniki sekcji w pliku hosts - NIE zmieniać, inaczej nowa wersja nie znajdzie sekcji starej
 $FB_MarkerStart = '# >>> FocusBlocker START - sekcja zarzadzana automatycznie, nie edytuj'
 $FB_MarkerEnd   = '# <<< FocusBlocker END'
 
-$FB_DefaultMessage = 'Ta strona jest teraz zablokowana. Media społecznościowe poczekają – Twoja praca nie.'
+. (Join-Path $PSScriptRoot 'i18n.ps1')
 
 $FB_Inv = [Globalization.CultureInfo]::InvariantCulture
 
 $FB_DayOrder = @('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
-$FB_DayShortEn = @{ Monday = 'Mon'; Tuesday = 'Tue'; Wednesday = 'Wed'; Thursday = 'Thu'; Friday = 'Fri'; Saturday = 'Sat'; Sunday = 'Sun' }
-$FB_DayShortPl = @{ Monday = 'Pon'; Tuesday = 'Wt'; Wednesday = 'Śr'; Thursday = 'Czw'; Friday = 'Pt'; Saturday = 'Sob'; Sunday = 'Nd' }
+$FB_DayShortEn = $FB_DayShort.en   # zapis dni w config.json
 $FB_DayMap = @{
     mon = 'Monday';    pon = 'Monday';    monday    = 'Monday';    poniedzialek = 'Monday'
     tue = 'Tuesday';   wt  = 'Tuesday';   tuesday   = 'Tuesday';   wtorek       = 'Tuesday'
@@ -71,7 +71,7 @@ function Remove-FBDiacritics([string]$Text) {
 }
 
 function Format-FBDuration([TimeSpan]$Span) {
-    if ($Span.TotalMinutes -lt 1) { return 'mniej niż minutę' }
+    if ($Span.TotalMinutes -lt 1) { return (T 'dur.lessThanMinute') }
     $h = [int][math]::Floor($Span.TotalHours)
     $m = $Span.Minutes
     if ($h -ge 24) { return '{0} d {1} h' -f [int][math]::Floor($Span.TotalDays), $Span.Hours }
@@ -82,8 +82,22 @@ function Format-FBDuration([TimeSpan]$Span) {
 function Format-FBWhen([datetime]$At) {
     $now = Get-FBNow
     if ($At.Date -eq $now.Date)            { return $At.ToString('HH:mm') }
-    if ($At.Date -eq $now.Date.AddDays(1)) { return 'jutro ' + $At.ToString('HH:mm') }
-    return $FB_DayShortPl[$At.DayOfWeek.ToString()] + ' ' + $At.ToString('dd.MM HH:mm')
+    if ($At.Date -eq $now.Date.AddDays(1)) { return (T 'when.tomorrow' $At.ToString('HH:mm')) }
+    return $FB_DayShort[$FB_State.Lang][$At.DayOfWeek.ToString()] + ' ' + $At.ToString((T 'when.date'), $FB_Inv)
+}
+
+# Kod powodu (np. "schedule+manual") -> tekst w bieżącym języku
+function Format-FBReason([string]$Code) {
+    return (($Code -split '\+' | ForEach-Object { T "reason.$_" }) -join ' + ')
+}
+
+# Język z config.json; gdy go brak - język systemu
+function Update-FBLanguage($Raw) {
+    if (-not $Raw -and (Test-Path $FB_ConfigPath)) {
+        try { $Raw = Get-Content $FB_ConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json } catch { }
+    }
+    $lang = if ($Raw) { [string]$Raw.language } else { '' }
+    $FB_State.Lang = if ($lang -and $FB_Text.ContainsKey($lang)) { $lang.ToLowerInvariant() } else { Get-FBSystemLanguage }
 }
 
 # ------------------------------------------------------------------ konfiguracja / harmonogram
@@ -91,21 +105,21 @@ function Format-FBWhen([datetime]$At) {
 function ConvertTo-FBTime([string]$Text) {
     if ($Text -match '^\s*24:00\s*$') { return [TimeSpan]::FromDays(1) }
     if ($Text -notmatch '^\s*(\d{1,2})[:.](\d{2})\s*$' -or [int]$Matches[1] -gt 23 -or [int]$Matches[2] -gt 59) {
-        throw "Niepoprawna godzina: '$Text' (format HH:mm, np. 09:00)"
+        throw (T 'err.time' $Text)
     }
     return New-Object TimeSpan -ArgumentList @([int]$Matches[1], [int]$Matches[2], 0)
 }
 
 function ConvertTo-FBDay([string]$Text) {
     $key = Remove-FBDiacritics ($Text.Trim().ToLowerInvariant())
-    if (-not $FB_DayMap.ContainsKey($key)) { throw "Nieznany dzień: '$Text' (np. pon, wt, sr, czw, pt, sob, nd)" }
+    if (-not $FB_DayMap.ContainsKey($key)) { throw (T 'err.day' $Text) }
     return $FB_DayMap[$key]
 }
 
 # "pon-pt", "pon,sr,pt", "sob nd", "codziennie" -> tablica nazw angielskich w kolejności tygodnia
 function ConvertFrom-FBDaysInput([string]$Text) {
     $t = $Text.Trim().ToLowerInvariant()
-    if ($t -in @('codziennie', 'wszystkie', '*')) { return $FB_DayOrder }
+    if ($t -in @('codziennie', 'wszystkie', '*', 'daily', 'everyday', 'every day', 'all')) { return $FB_DayOrder }
     $picked = @{}
     foreach ($tok in ($t -split '[,;\s]+' | Where-Object { $_ })) {
         if ($tok -match '^([^-–]+)[-–]([^-–]+)$') {
@@ -117,19 +131,20 @@ function ConvertFrom-FBDaysInput([string]$Text) {
             $picked[(ConvertTo-FBDay $tok)] = $true
         }
     }
-    if ($picked.Count -eq 0) { throw 'Nie podano dni.' }
+    if ($picked.Count -eq 0) { throw (T 'err.noDays') }
     return @($FB_DayOrder | Where-Object { $picked.ContainsKey($_) })
 }
 
 # tablica nazw angielskich -> "Pon–Pt", "Pon, Śr, Pt", "Codziennie"
 function Format-FBDays($Days) {
     $idx = @($Days | ForEach-Object { [array]::IndexOf($FB_DayOrder, $_) } | Sort-Object -Unique)
-    if ($idx.Count -eq 7) { return 'Codziennie' }
+    if ($idx.Count -eq 7) { return (T 'days.every') }
+    $short = $FB_DayShort[$FB_State.Lang]
     $parts = @(); $i = 0
     while ($i -lt $idx.Count) {
         $j = $i
         while ($j + 1 -lt $idx.Count -and $idx[$j + 1] -eq $idx[$j] + 1) { $j++ }
-        $a = $FB_DayShortPl[$FB_DayOrder[$idx[$i]]]; $b = $FB_DayShortPl[$FB_DayOrder[$idx[$j]]]
+        $a = $short[$FB_DayOrder[$idx[$i]]]; $b = $short[$FB_DayOrder[$idx[$j]]]
         if ($j - $i -ge 2)     { $parts += "$a–$b" }
         elseif ($j -gt $i)     { $parts += $a; $parts += $b }
         else                   { $parts += $a }
@@ -138,9 +153,16 @@ function Format-FBDays($Days) {
     return ($parts -join ', ')
 }
 
+function Test-FBDefaultMessage([string]$Text) {
+    if (-not $Text) { return $true }
+    foreach ($l in $FB_Text.Keys) { if ($Text -eq $FB_Text[$l]['default.message']) { return $true } }
+    return $false
+}
+
 function Get-FBConfig {
-    if (-not (Test-Path $FB_ConfigPath)) { throw "Brak pliku $FB_ConfigPath" }
+    if (-not (Test-Path $FB_ConfigPath)) { throw (T 'err.missingFile' $FB_ConfigPath) }
     $raw = Get-Content $FB_ConfigPath -Raw -Encoding UTF8 | ConvertFrom-Json
+    Update-FBLanguage $raw
     $entries = @()
     foreach ($s in @($raw.schedule)) {
         if (-not $s) { continue }
@@ -150,8 +172,9 @@ function Get-FBConfig {
             To   = [string]$s.to
         }
     }
-    $msg = if ($raw.message) { [string]$raw.message } else { $FB_DefaultMessage }
-    return [pscustomobject]@{ Schedule = $entries; Message = $msg }
+    # Pusty tekst albo domyślny w dowolnym języku = domyślny komunikat w bieżącym języku
+    $msg = if ($raw.message -and -not (Test-FBDefaultMessage ([string]$raw.message))) { [string]$raw.message } else { T 'default.message' }
+    return [pscustomobject]@{ Schedule = $entries; Message = $msg; Language = $FB_State.Lang }
 }
 
 function Save-FBConfig($Config) {
@@ -163,7 +186,8 @@ function Save-FBConfig($Config) {
             to   = $e.To
         })
     }
-    $obj = [ordered]@{ schedule = $sched.ToArray(); message = $Config.Message }
+    $custom = if (Test-FBDefaultMessage ([string]$Config.Message)) { '' } else { $Config.Message }
+    $obj = [ordered]@{ language = $Config.Language; schedule = $sched.ToArray(); message = $custom }
     $json = ConvertTo-Json -InputObject $obj -Depth 5
     [IO.File]::WriteAllText($FB_ConfigPath, $json, (New-Object System.Text.UTF8Encoding($false)))
 }
@@ -257,22 +281,22 @@ function Get-FBDomains {
 
 function Add-FBDomain([string]$Text) {
     $d = ConvertTo-FBDomain $Text
-    if (-not $d) { throw "To nie wygląda na domenę: '$Text'" }
+    if (-not $d) { throw (T 'err.notDomain' $Text) }
     if ((Get-FBListEntries) -contains $d) { return $false }
     $enc = New-Object System.Text.UTF8Encoding($false)
     $content = if (Test-Path $FB_BlocklistPath) { [IO.File]::ReadAllText($FB_BlocklistPath) } else { '' }
     if ($content -and -not $content.EndsWith("`n")) { $content += "`r`n" }
     [IO.File]::WriteAllText($FB_BlocklistPath, $content + $d + "`r`n", $enc)
-    Write-FBLog "Dodano do listy: $d"
+    Write-FBLog (T 'log.added' $d)
     return $true
 }
 
 function Remove-FBDomain([string]$Domain) {
-    if ((Get-FBStatus).Active) { throw 'Blokada trwa - nie można teraz usuwać stron z listy.' }
+    if ((Get-FBStatus).Active) { throw (T 'err.removeDuringBlock') }
     $lines = Get-Content $FB_BlocklistPath -Encoding UTF8
     $kept = @($lines | Where-Object { (ConvertTo-FBDomain $_) -ne $Domain })
     [IO.File]::WriteAllText($FB_BlocklistPath, (($kept -join "`r`n") + "`r`n"), (New-Object System.Text.UTF8Encoding($false)))
-    Write-FBLog "Usunięto z listy: $Domain"
+    Write-FBLog (T 'log.removed' $Domain)
 }
 
 # ------------------------------------------------------------------ stan (blokada ręczna)
@@ -293,7 +317,7 @@ function Start-FBManualBlock([datetime]$Until) {
     if ($current -and $current -ge $Until) { return $current }   # nigdy nie skracamy
     $obj = [ordered]@{ overrideUntil = $Until.ToString('s', $FB_Inv) }
     (ConvertTo-Json -InputObject $obj) | Set-Content -Path $FB_StatePath -Encoding UTF8
-    Write-FBLog "Blokada ręczna do $($Until.ToString('yyyy-MM-dd HH:mm'))"
+    Write-FBLog (T 'log.manual' $Until.ToString('yyyy-MM-dd HH:mm'))
     [void](Invoke-FBAuto)
     return $Until
 }
@@ -308,10 +332,10 @@ function Get-FBStatus {
     $manual = Get-FBOverrideUntil
 
     $until = $null; $reason = $null
-    if ($schedEnd) { $until = $schedEnd; $reason = 'harmonogram' }
+    if ($schedEnd) { $until = $schedEnd; $reason = 'schedule' }
     if ($manual -and (-not $until -or $manual -gt $until)) {
         $until = $manual
-        $reason = if ($schedEnd) { 'harmonogram + ręczna' } else { 'ręczna' }
+        $reason = if ($schedEnd) { 'schedule+manual' } else { 'manual' }
     }
     # jeśli po końcu blokady od razu zaczyna się kolejny przedział - doliczamy go
     if ($until) {
@@ -319,7 +343,7 @@ function Get-FBStatus {
             $more = Get-FBScheduleEnd $iv $until
             if (-not $more -or $more -le $until) { break }
             $until = $more
-            if ($reason -eq 'ręczna') { $reason = 'ręczna + harmonogram' }
+            if ($reason -eq 'manual') { $reason = 'manual+schedule' }
         }
     }
     [pscustomobject]@{
@@ -366,21 +390,20 @@ function Set-FBHostsBlocked([bool]$Blocked, [string]$Reason) {
     for ($i = 1; $i -le 10; $i++) {
         try { [IO.File]::WriteAllText($FB_HostsPath, $new, $enc); break }
         catch {
-            if ($i -eq 10) { throw "Nie udało się zapisać pliku hosts: $($_.Exception.Message)" }
+            if ($i -eq 10) { throw (T 'err.hostsWrite' $_.Exception.Message) }
             Start-Sleep -Milliseconds 300
         }
     }
     if ($PSVersionTable.PSEdition -eq 'Desktop' -or $IsWindows) {
         try { Clear-DnsClientCache } catch { & ipconfig.exe /flushdns | Out-Null }
     }
-    $what = if ($Blocked) { "WŁĄCZONA ($($domains.Count) domen)" } else { 'WYŁĄCZONA' }
-    Write-FBLog "Blokada $what - $Reason"
+    if ($Blocked) { Write-FBLog (T 'log.on' $domains.Count $Reason) } else { Write-FBLog (T 'log.off' $Reason) }
 }
 
 # Doprowadza plik hosts do stanu zgodnego ze statusem
 function Invoke-FBAuto {
     $st = Get-FBStatus
-    if ($st.Active) { Set-FBHostsBlocked $true "$($st.Reason), do $($st.Until.ToString('yyyy-MM-dd HH:mm'))" }
-    else            { Set-FBHostsBlocked $false 'brak aktywnej blokady' }
+    if ($st.Active) { Set-FBHostsBlocked $true (T 'log.auto' (Format-FBReason $st.Reason) $st.Until.ToString('yyyy-MM-dd HH:mm')) }
+    else            { Set-FBHostsBlocked $false (T 'log.noBlock') }
     return $st
 }

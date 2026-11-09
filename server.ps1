@@ -119,8 +119,9 @@ $CountdownJs = @'
     } else {
       document.body.classList.add('done');
       var h = document.getElementById('head');
-      if (h) h.textContent = 'Blokada się skończyła';
-      document.title = 'Blokada się skończyła – FocusBlocker';
+      var t = el.getAttribute('data-ended');
+      if (h) h.textContent = t;
+      document.title = t + ' – FocusBlocker';
     }
   }
   tick();
@@ -139,11 +140,12 @@ function Format-Timer([TimeSpan]$Left) {
 function Get-CountdownHtml([string]$Label, [datetime]$Until, [string]$OnDone) {
     $left = $Until - (Get-FBNow)
     $ms = [int64][math]::Max(0, $left.TotalMilliseconds)
+    $ended = ConvertTo-HtmlText (T 'page.ended')
     return @"
   <div class="countdown">
     <div class="label">$Label</div>
-    <div class="timer" id="left" data-ms="$ms" data-done="$OnDone">$(Format-Timer $left)</div>
-    <div class="until">do <b>$(Format-FBWhen $Until)</b></div>
+    <div class="timer" id="left" data-ms="$ms" data-done="$OnDone" data-ended="$ended">$(Format-Timer $left)</div>
+    <div class="until">$(T 'page.until' ('<b>' + (ConvertTo-HtmlText (Format-FBWhen $Until)) + '</b>'))</div>
   </div>
 "@
 }
@@ -151,7 +153,7 @@ function Get-CountdownHtml([string]$Label, [datetime]$Until, [string]$OnDone) {
 function Get-PageHtml([string]$Title, [string]$Body, [string]$BodyClass) {
     return @"
 <!doctype html>
-<html lang="pl"><head>
+<html lang="$($FB_State.Lang)"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>$Title – FocusBlocker</title>
 <link rel="icon" href="$Favicon">
@@ -161,7 +163,7 @@ $PageCss
 <body class="$BodyClass"><main>
   <div class="brand">$Logo FocusBlocker</div>
 $Body
-  <footer>Zmiany: menu FocusBlocker w menu Start.</footer>
+  <footer>$(T 'page.footer')</footer>
 </main>
 <script>
 $CountdownJs
@@ -171,7 +173,7 @@ $CountdownJs
 }
 
 function Get-BlockedPage([string]$Site) {
-    $st = Get-FBStatus
+    $st = Get-FBStatus   # wczytuje też język z config.json
     $now = Get-FBNow
     $day = $now.ToString('yyyy-MM-dd')
     if ($st.Active) {
@@ -180,32 +182,30 @@ function Get-BlockedPage([string]$Site) {
     }
     $count = if ($attempts.ContainsKey($day)) { $attempts[$day] } else { 0 }
 
-    $site = if ($Site) { ConvertTo-HtmlText $Site } else { 'Ta strona' }
+    $site = if ($Site) { ConvertTo-HtmlText $Site } else { T 'page.thisSite' }
     $msg  = ConvertTo-HtmlText $st.Message
     # Przycisk powrotu tylko dla poprawnej nazwy domeny (trafia do atrybutu href)
     $domain = if ($Site) { $Site.ToLowerInvariant() } else { '' }
-    $goBack = if ($domain -match '^[a-z0-9-]+(\.[a-z0-9-]+)+$') { "<a class=""btn"" href=""https://$domain/"">Przejdź do $domain</a>" } else { '' }
-    $ended = "  <div class=""ended""><p>Możesz już wrócić na tę stronę. Jeśli jeszcze się nie wczytuje, odczekaj minutę.</p>$goBack</div>"
+    $goBack = if ($domain -match '^[a-z0-9-]+(\.[a-z0-9-]+)+$') { "<a class=""btn"" href=""https://$domain/"">$(T 'page.goTo' $domain)</a>" } else { '' }
+    $ended = "  <div class=""ended""><p>$(T 'page.endedInfo')</p>$goBack</div>"
 
     if ($st.Active) {
-        $head = 'Zablokowane'
-        $tries = switch ($count) {
-            1       { 'To Twoja pierwsza próba dzisiaj.' }
-            { $_ -ge 2 -and $_ -le 4 } { "To już $count. próba dzisiaj." }
-            default { "To już $count. próba dzisiaj. Może czas na przerwę od ekranu?" }
-        }
+        $head = T 'page.blocked'
+        $tries = if ($count -le 1) { T 'page.tries1' }
+                 elseif ($count -le 4) { T 'page.triesN' $count }
+                 else { T 'page.triesMany' $count }
         $body = @"
   <h1 id="head">$head</h1>
   <p class="site">$site</p>
   <p class="msg">$msg</p>
-$(Get-CountdownHtml 'Do końca blokady zostało' $st.Until 'show')
+$(Get-CountdownHtml (T 'page.left') $st.Until 'show')
   <p class="tries">$tries</p>
 $ended
 "@
         return Get-PageHtml $head $body ''
     }
 
-    $head = 'Blokada się skończyła'
+    $head = T 'page.ended'
     $body = @"
   <h1 id="head">$head</h1>
   <p class="site">$site</p>
@@ -218,43 +218,43 @@ function Get-IndexPage {
     $st = Get-FBStatus
     if ($st.Active) {
         $top = @"
-  <span class="pill on">Blokada aktywna</span>
-  <h1>Skup się – strony są zablokowane</h1>
-  <p class="sub">Powód: $(ConvertTo-HtmlText $st.Reason)</p>
-$(Get-CountdownHtml 'Do końca blokady zostało' $st.Until 'reload')
+  <span class="pill on">$(T 'status.on')</span>
+  <h1>$(T 'status.onHead')</h1>
+  <p class="sub">$(ConvertTo-HtmlText (T 'status.reason' (Format-FBReason $st.Reason)))</p>
+$(Get-CountdownHtml (T 'page.left') $st.Until 'reload')
 "@
     } elseif ($st.NextStart) {
         $top = @"
-  <span class="pill off">Brak blokady</span>
-  <h1>Wszystkie strony są dostępne</h1>
-$(Get-CountdownHtml 'Następna blokada za' $st.NextStart 'reload')
+  <span class="pill off">$(T 'status.off')</span>
+  <h1>$(T 'status.offHead')</h1>
+$(Get-CountdownHtml (T 'status.next') $st.NextStart 'reload')
 "@
     } else {
         $top = @"
-  <span class="pill off">Brak blokady</span>
-  <h1>Wszystkie strony są dostępne</h1>
-  <p class="sub">Harmonogram jest pusty – blokadę włączysz z menu FocusBlocker.</p>
+  <span class="pill off">$(T 'status.off')</span>
+  <h1>$(T 'status.offHead')</h1>
+  <p class="sub">$(T 'status.noSchedule')</p>
 "@
     }
 
     $sched = @($st.Config.Schedule | ForEach-Object {
         "    <li>$(ConvertTo-HtmlText (Format-FBDays $_.Days)) <span>$(ConvertTo-HtmlText $_.From)–$(ConvertTo-HtmlText $_.To)</span></li>"
     })
-    $schedHtml = if ($sched.Count) { "  <ul class=""rows"">`r`n" + ($sched -join "`r`n") + "`r`n  </ul>" } else { '  <p class="empty">Brak przedziałów.</p>' }
+    $schedHtml = if ($sched.Count) { "  <ul class=""rows"">`r`n" + ($sched -join "`r`n") + "`r`n  </ul>" } else { "  <p class=""empty"">$(T 'status.scheduleEmpty')</p>" }
 
     $list = @(Get-FBListEntries)
     $listHtml = if ($list.Count) {
         '  <div class="chips">' + (($list | ForEach-Object { '<span>' + (ConvertTo-HtmlText $_) + '</span>' }) -join '') + '</div>'
-    } else { '  <p class="empty">Lista jest pusta.</p>' }
+    } else { "  <p class=""empty"">$(T 'status.sitesEmpty')</p>" }
 
     $body = @"
 $top
-  <h2>Harmonogram</h2>
+  <h2>$(T 'status.schedule')</h2>
 $schedHtml
-  <h2>Zablokowane strony ($($list.Count))</h2>
+  <h2>$(T 'status.sites' $list.Count)</h2>
 $listHtml
 "@
-    return Get-PageHtml 'Stan blokady' $body ''
+    return Get-PageHtml (T 'status.title') $body ''
 }
 
 # ------------------------------------------------------------------ pętla serwera
@@ -262,14 +262,14 @@ $listHtml
 $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://127.0.0.1:$FB_Port/")
 $listener.Start()
-Write-FBLog "Serwer strony blokady uruchomiony na porcie $FB_Port"
+Write-FBLog (T 'log.serverStarted' $FB_Port)
 
 $pending = $null
 $lastSync = [datetime]::MinValue
 try {
     while ($listener.IsListening) {
         if ((Get-Date) - $lastSync -ge [TimeSpan]::FromSeconds(30)) {
-            try { [void](Invoke-FBAuto) } catch { Write-FBLog "Błąd synchronizacji: $($_.Exception.Message)" }
+            try { [void](Invoke-FBAuto) } catch { Write-FBLog (T 'log.syncError' $_.Exception.Message) }
             $lastSync = Get-Date
         }
         if (-not $pending) { $pending = $listener.BeginGetContext($null, $null) }
@@ -285,7 +285,7 @@ try {
                 default    { Send-Response $ctx 404 'text/plain' 'Not found' }
             }
         } catch {
-            Write-FBLog "Błąd serwera: $($_.Exception.Message)"
+            Write-FBLog (T 'log.serverError' $_.Exception.Message)
             try { Send-Response $ctx 500 'text/plain' 'Error' } catch { }
         } finally {
             try { $ctx.Response.Close() } catch { }

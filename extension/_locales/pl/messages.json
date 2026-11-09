@@ -1,0 +1,8 @@
+{
+  "extDescription": {
+    "message": "Pokazuje stronę z komunikatem zamiast stron zablokowanych przez FocusBlocker."
+  },
+  "actionTitle": {
+    "message": "FocusBlocker – stan blokady"
+  }
+}

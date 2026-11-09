@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "FocusBlocker",
-  "version": "1.1.0",
-  "description": "Pokazuje stronę z komunikatem zamiast stron zablokowanych przez FocusBlocker.",
+  "version": "1.2.0",
+  "default_locale": "en",
+  "description": "__MSG_extDescription__",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
@@ -10,7 +11,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "FocusBlocker – stan blokady",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png"

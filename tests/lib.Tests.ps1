@@ -11,8 +11,8 @@ BeforeAll {
     # Poniedziałek 9 listopada 2026
     $Mon = [datetime]'2026-11-09'
 
-    function Set-TestSchedule([object[]]$Entries) {
-        $obj = [ordered]@{ schedule = @($Entries); message = 'Test' }
+    function Set-TestSchedule([object[]]$Entries, [string]$Language = 'pl') {
+        $obj = [ordered]@{ language = $Language; schedule = @($Entries); message = 'Test' }
         [IO.File]::WriteAllText($FB_ConfigPath, (ConvertTo-Json -InputObject $obj -Depth 5))
     }
     function Set-TestList([string[]]$Lines) {
@@ -60,6 +60,7 @@ Describe 'ConvertFrom-FBDaysInput' {
 }
 
 Describe 'Format-FBDays' {
+    BeforeEach { $FB_State.Lang = 'pl' }
     It 'zwija <Days> do "<Expected>"' -ForEach @(
         @{ Days = 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'; Expected = 'Pon–Pt' }
         @{ Days = 'Monday', 'Wednesday', 'Friday'; Expected = 'Pon, Śr, Pt' }
@@ -71,6 +72,7 @@ Describe 'Format-FBDays' {
 }
 
 Describe 'Format-FBDuration' {
+    BeforeEach { $FB_State.Lang = 'pl' }
     It '<Span> -> "<Expected>"' -ForEach @(
         @{ Span = '00:00:30'; Expected = 'mniej niż minutę' }
         @{ Span = '00:24:10'; Expected = '25 min' }
@@ -112,7 +114,7 @@ Describe 'Get-FBStatus' {
         $st = Get-FBStatus
         $st.Active | Should -BeTrue
         $st.Until | Should -Be $Mon.AddHours(17)
-        $st.Reason | Should -Be 'harmonogram'
+        $st.Reason | Should -Be 'schedule'
     }
 
     It 'po przedziale: nieaktywna, następny start jutro rano' {
@@ -167,7 +169,7 @@ Describe 'Get-FBStatus' {
         [void](Start-FBManualBlock $Mon.AddHours(19))
         $st = Get-FBStatus
         $st.Until | Should -Be $Mon.AddHours(19)
-        $st.Reason | Should -Be 'harmonogram + ręczna'
+        $st.Reason | Should -Be 'schedule+manual'
     }
 
     It 'blokada ręczna, po której od razu zaczyna się harmonogram, trwa do końca przedziału' {
@@ -176,7 +178,7 @@ Describe 'Get-FBStatus' {
         [void](Start-FBManualBlock $Mon.AddHours(9))
         $st = Get-FBStatus
         $st.Until | Should -Be $Mon.AddHours(17)
-        $st.Reason | Should -Be 'ręczna + harmonogram'
+        $st.Reason | Should -Be 'manual+schedule'
     }
 
     It 'wygasła blokada ręczna jest ignorowana' {

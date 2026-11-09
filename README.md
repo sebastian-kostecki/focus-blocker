@@ -21,9 +21,6 @@ file and Task Scheduler.
   </picture>
 </p>
 
-> [!NOTE]
-> The user interface (terminal menu and block page) is currently in Polish.
-
 ## Features
 
 - **No way back** – a running block can't be stopped or shortened: not from the menu, not by
@@ -37,6 +34,8 @@ file and Task Scheduler.
   own message, a live countdown and how many times you've tried today. Light and dark mode.
 - **Status at a glance** – click the extension's toolbar icon to see the current block, the
   schedule and the site list.
+- **English and Polish** – the terminal menu, block page and extension follow your Windows
+  language and can be switched in the menu (option 6) at any time.
 - **Zero dependencies** – nothing to download or install besides the scripts themselves.
 
 ## Installation
@@ -69,9 +68,10 @@ Launch **FocusBlocker** from the Start menu (Windows will ask for administrator 
 |---|---|---|
 | 1 | Start a block now: 25 min, 50 min, 1.5 h, 2 h, until end of day or a custom time (`90` or `16:30`) | extend only |
 | 2 | Add or remove sites (several at once, comma-separated) | add only |
-| 3 | Add or remove schedule ranges, e.g. `pon-pt` 09:00–12:00 | add only |
+| 3 | Add or remove schedule ranges, e.g. `mon-fri` 09:00–12:00 | add only |
 | 4 | Message shown on the block page | yes |
 | 5 | Recent log entries | yes |
+| 6 | Interface language (English / Polski) | yes |
 
 Click the **FocusBlocker icon** in the browser toolbar to open the status page:
 
@@ -82,7 +82,8 @@ Click the **FocusBlocker icon** in the browser toolbar to open the status page:
   </picture>
 </p>
 
-Days can be typed in Polish or English: `pon-pt`, `pon,sr,pt`, `sob nd`, `codziennie`, `mon-fri`.
+Days can be typed in English or Polish, whichever interface language you use: `mon-fri`,
+`mon,wed,fri`, `sat sun`, `daily` (or `pon-pt`, `sob nd`, `codziennie`).
 
 There is also a non-interactive script used by Task Scheduler:
 
@@ -140,8 +141,9 @@ Everything is installed to `C:\ProgramData\FocusBlocker` (writable by administra
 | `blocker.ps1` | non-interactive version for Task Scheduler |
 | `server.ps1` | local block page server |
 | `lib.ps1` | shared functions |
+| `i18n.ps1` | interface texts (English and Polish) |
 | `blocklist.txt` | blocked sites (one domain per line, `#` = comment) |
-| `config.json` | schedule and block page message |
+| `config.json` | schedule, language and block page message |
 | `state.json` | end of the manual block |
 | `blocker.log` | log |
 | `hosts.backup` | copy of `hosts` from before the first change |

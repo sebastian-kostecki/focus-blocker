@@ -16,8 +16,8 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/blocked-dark.png">
-    <img src="docs/images/blocked-light.png" width="620" alt="Strona blokady: zablokowana strona, Twój komunikat, odliczanie do końca blokady i licznik prób">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/blocked-dark-pl.png">
+    <img src="docs/images/blocked-light-pl.png" width="620" alt="Strona blokady: zablokowana strona, Twój komunikat, odliczanie do końca blokady i licznik prób">
   </picture>
 </p>
 
@@ -33,6 +33,8 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
   odliczanie do końca blokady i licznik dzisiejszych prób. Tryb jasny i ciemny.
 - **Stan pod ręką** – kliknięcie ikony rozszerzenia na pasku przeglądarki pokazuje bieżącą
   blokadę, harmonogram i listę stron.
+- **Polski i angielski** – menu w terminalu, strona blokady i rozszerzenie podążają za językiem
+  Windows i można je w każdej chwili przełączyć w menu (opcja 6).
 - **Zero zależności** – nic nie trzeba doinstalowywać.
 
 ## Instalacja
@@ -58,7 +60,7 @@ Gotowe. W menu Start pojawi się skrót **FocusBlocker**.
 Uruchom skrót **FocusBlocker** z menu Start (Windows zapyta o uprawnienia administratora).
 
 <p align="center">
-  <img src="docs/images/terminal-menu.png" width="620" alt="Menu FocusBlockera w terminalu z aktywną blokadą do 17:00">
+  <img src="docs/images/terminal-menu-pl.png" width="620" alt="Menu FocusBlockera w terminalu z aktywną blokadą do 17:00">
 </p>
 
 | Opcja | Co robi | W trakcie blokady |
@@ -68,18 +70,19 @@ Uruchom skrót **FocusBlocker** z menu Start (Windows zapyta o uprawnienia admin
 | 3 | Dodawanie i usuwanie przedziałów harmonogramu, np. `pon-pt` 09:00–12:00 | tylko dodawanie |
 | 4 | Tekst wyświetlany na stronie blokady | tak |
 | 5 | Ostatnie wpisy w dzienniku | tak |
+| 6 | Język interfejsu (Polski / English) | tak |
 
 Kliknij **ikonę FocusBlockera** na pasku przeglądarki, żeby zobaczyć stronę stanu:
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/status-dark.png">
-    <img src="docs/images/status-light.png" width="520" alt="Strona stanu: aktywna blokada z odliczaniem, harmonogram i lista blokowanych stron">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/status-dark-pl.png">
+    <img src="docs/images/status-light-pl.png" width="520" alt="Strona stanu: aktywna blokada z odliczaniem, harmonogram i lista blokowanych stron">
   </picture>
 </p>
 
-Dni w harmonogramie wpisuje się po polsku lub angielsku: `pon-pt`, `pon,sr,pt`, `sob nd`,
-`codziennie`, `mon-fri`.
+Dni w harmonogramie wpisuje się po polsku lub angielsku, niezależnie od wybranego języka
+interfejsu: `pon-pt`, `pon,sr,pt`, `sob nd`, `codziennie` (albo `mon-fri`, `daily`).
 
 Jest też wersja nieinteraktywna, z której korzysta Harmonogram zadań:
 
@@ -137,8 +140,9 @@ połączenia zamiast komunikatu.
 | `blocker.ps1` | wersja dla Harmonogramu zadań |
 | `server.ps1` | lokalna strona blokady |
 | `lib.ps1` | wspólne funkcje |
+| `i18n.ps1` | teksty interfejsu (polski i angielski) |
 | `blocklist.txt` | lista stron (jedna domena na linię, `#` = komentarz) |
-| `config.json` | harmonogram i tekst komunikatu |
+| `config.json` | harmonogram, język i tekst komunikatu |
 | `state.json` | koniec blokady ręcznej |
 | `blocker.log` | dziennik |
 | `hosts.backup` | kopia pliku `hosts` sprzed pierwszej zmiany |

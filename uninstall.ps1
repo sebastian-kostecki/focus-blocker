@@ -6,9 +6,12 @@
 #>
 $ErrorActionPreference = 'Stop'
 
+. (Join-Path $PSScriptRoot 'i18n.ps1')
+$FB_State.Lang = Get-FBSystemLanguage
+
 $id = [Security.Principal.WindowsIdentity]::GetCurrent()
 if (-not ([Security.Principal.WindowsPrincipal]$id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host 'Uruchom PowerShell jako administrator.' -ForegroundColor Yellow
+    Write-Host (T 'admin.required') -ForegroundColor Yellow
     exit 1
 }
 
@@ -20,7 +23,7 @@ if (Test-Path $lib) {
     . $lib
     $st = Get-FBStatus
     if ($st.Active) {
-        Write-Host "Blokada trwa do $(Format-FBWhen $st.Until). Odinstalowanie będzie możliwe po jej zakończeniu." -ForegroundColor Yellow
+        Write-Host (T 'uninst.activeBlock' (Format-FBWhen $st.Until)) -ForegroundColor Yellow
         exit 2
     }
 }
@@ -30,7 +33,7 @@ foreach ($t in 'FocusBlocker', 'FocusBlocker-Page') {
     Unregister-ScheduledTask -TaskName $t -Confirm:$false -ErrorAction SilentlyContinue
 }
 
-if (Test-Path $lib) { Set-FBHostsBlocked $false 'odinstalowanie' }
+if (Test-Path $lib) { Set-FBHostsBlocked $false (T 'log.uninstall') }
 
 Remove-Item (Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs\FocusBlocker.lnk') -ErrorAction SilentlyContinue
 
@@ -38,5 +41,5 @@ Set-Location $env:TEMP
 Start-Sleep -Seconds 1
 Remove-Item $dest -Recurse -Force -ErrorAction SilentlyContinue
 
-Write-Host 'FocusBlocker odinstalowany.' -ForegroundColor Green
-Write-Host 'Rozszerzenie usuń ręcznie w chrome://extensions (lub edge://extensions).'
+Write-Host (T 'uninst.done') -ForegroundColor Green
+Write-Host (T 'uninst.extension')

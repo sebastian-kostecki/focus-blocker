@@ -19,27 +19,28 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 . "$PSScriptRoot\lib.ps1"
+Update-FBLanguage $null
 
 if ($Mode -ne 'Status' -and -not (Test-FBAdmin)) {
-    Write-Error 'Uruchom PowerShell jako administrator.'
+    Write-Error (T 'admin.required')
     exit 1
 }
 
 switch ($Mode) {
     'Auto' { [void](Invoke-FBAuto) }
     'On' {
-        if ($Minutes -le 0) { Write-Error 'Podaj -Minutes większe od zera.'; exit 1 }
+        if ($Minutes -le 0) { Write-Error (T 'cli.minutes'); exit 1 }
         $until = Start-FBManualBlock ((Get-FBNow).AddMinutes($Minutes))
-        Write-Host "Blokada aktywna do $(Format-FBWhen $until)."
+        Write-Host (T 'cli.on' (Format-FBWhen $until))
     }
     'Status' {
         $st = Get-FBStatus
-        if ($st.Active) { Write-Host "Blokada AKTYWNA ($($st.Reason)) do $(Format-FBWhen $st.Until)" }
+        if ($st.Active) { Write-Host (T 'cli.statusOn' (Format-FBReason $st.Reason) (Format-FBWhen $st.Until)) }
         else {
-            $next = if ($st.NextStart) { Format-FBWhen $st.NextStart } else { 'brak w harmonogramie' }
-            Write-Host "Brak blokady. Następna: $next"
+            $next = if ($st.NextStart) { Format-FBWhen $st.NextStart } else { T 'cli.noneScheduled' }
+            Write-Host (T 'cli.statusOff' $next)
         }
-        Write-Host "Plik hosts zablokowany: $(Test-FBHostsBlocked)"
-        Write-Host "Domen: $($st.Domains.Count)"
+        Write-Host (T 'cli.hosts' (Test-FBHostsBlocked))
+        Write-Host (T 'cli.domains' $st.Domains.Count)
     }
 }

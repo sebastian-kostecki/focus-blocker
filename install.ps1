@@ -13,9 +13,13 @@
 #>
 $ErrorActionPreference = 'Stop'
 
+# Teksty (PL/EN); język systemu, dopóki nie wczytamy ustawień z config.json
+. (Join-Path $PSScriptRoot 'i18n.ps1')
+$FB_State.Lang = Get-FBSystemLanguage
+
 $id = [Security.Principal.WindowsIdentity]::GetCurrent()
 if (-not ([Security.Principal.WindowsPrincipal]$id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    Write-Host 'Uruchom PowerShell jako administrator.' -ForegroundColor Yellow
+    Write-Host (T 'admin.required') -ForegroundColor Yellow
     exit 1
 }
 
@@ -28,7 +32,7 @@ if (Test-Path (Join-Path $dest 'lib.ps1')) {
     . (Join-Path $dest 'lib.ps1')
     $st = Get-FBStatus
     if ($st.Active) {
-        Write-Host "Blokada trwa do $(Format-FBWhen $st.Until). Aktualizacja będzie możliwa po jej zakończeniu." -ForegroundColor Yellow
+        Write-Host (T 'inst.activeBlock' (Format-FBWhen $st.Until)) -ForegroundColor Yellow
         exit 2
     }
     Remove-Variable FB_Dir
@@ -42,9 +46,10 @@ if (-not (Test-Path $dest)) { New-Item -ItemType Directory -Path $dest | Out-Nul
 Stop-ScheduledTask -TaskName 'FocusBlocker-Page' -ErrorAction SilentlyContinue
 
 # 2. Pliki programu (zawsze) i konfiguracja (tylko przy pierwszej instalacji)
-foreach ($f in 'lib.ps1', 'blocker.ps1', 'focus.ps1', 'server.ps1', 'uninstall.ps1', 'README.md') {
+foreach ($f in 'i18n.ps1', 'lib.ps1', 'blocker.ps1', 'focus.ps1', 'server.ps1', 'uninstall.ps1', 'README.md') {
     Copy-Item (Join-Path $src $f) (Join-Path $dest $f) -Force
 }
+$freshInstall = -not (Test-Path (Join-Path $dest 'config.json'))
 foreach ($f in 'blocklist.txt', 'config.json') {
     if (-not (Test-Path (Join-Path $dest $f))) { Copy-Item (Join-Path $src $f) (Join-Path $dest $f) }
 }
@@ -57,6 +62,15 @@ Get-ChildItem $dest -File -Recurse | Unblock-File -ErrorAction SilentlyContinue
 $FB_Dir = $dest
 . (Join-Path $dest 'lib.ps1')
 [void](Get-FBStatus)
+# Pierwsza instalacja: zapisz język systemu. Aktualizacja starszej wersji (jeszcze bez wyboru
+# języka) zostaje po polsku, żeby program nie zmienił się nagle; wybrany język zawsze zostaje.
+$rawCfg = Get-Content (Join-Path $dest 'config.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+if (-not $rawCfg.language) {
+    $cfg = Get-FBConfig
+    $cfg.Language = if ($freshInstall) { Get-FBSystemLanguage } else { 'pl' }
+    Save-FBConfig $cfg
+}
+Update-FBLanguage $null
 
 # 4. Zadania w Harmonogramie zadań
 $ps = 'powershell.exe'
@@ -70,7 +84,7 @@ $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
     -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 2)
 Register-ScheduledTask -TaskName 'FocusBlocker' -Action $action -Trigger $everyMinute, $atStartup `
     -Principal $principal -Settings $settings -Force `
-    -Description 'Blokuje rozpraszające strony (plik hosts) wg harmonogramu. Pliki: C:\ProgramData\FocusBlocker' | Out-Null
+    -Description (T 'inst.taskDesc' $dest) | Out-Null
 
 $action2 = New-ScheduledTaskAction -Execute $ps -Argument "$common `"$dest\server.ps1`""
 $settings2 = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
@@ -78,7 +92,7 @@ $settings2 = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGo
     -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1)
 Register-ScheduledTask -TaskName 'FocusBlocker-Page' -Action $action2 -Trigger (New-ScheduledTaskTrigger -AtStartup) `
     -Principal $principal -Settings $settings2 -Force `
-    -Description 'Lokalna strona z komunikatem FocusBlocker (http://127.0.0.1:47615)' | Out-Null
+    -Description (T 'inst.pageDesc' $FB_Port) | Out-Null
 Start-ScheduledTask -TaskName 'FocusBlocker-Page'
 
 # 5. Skrót w menu Start
@@ -88,19 +102,20 @@ $s = $sh.CreateShortcut($lnk)
 $s.TargetPath = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
 $s.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$dest\focus.ps1`""
 $s.WorkingDirectory = $dest
-$s.Description = 'FocusBlocker – blokada rozpraszających stron'
+$s.Description = T 'inst.shortcutDesc'
 $s.Save()
 
 # 6. Pierwsza synchronizacja
 [void](Invoke-FBAuto)
 
 Write-Host ''
-Write-Host "FocusBlocker zainstalowany w $dest" -ForegroundColor Green
+Write-Host (T 'inst.done' $dest) -ForegroundColor Green
+Write-Host (T 'inst.language' $FB_Languages[$FB_State.Lang])
 Write-Host ''
-Write-Host 'Ostatni krok – rozszerzenie z ładną stroną blokady (Chrome lub Edge):'
-Write-Host '  1. Otwórz chrome://extensions (w Edge: edge://extensions)'
-Write-Host '  2. Włącz "Tryb dewelopera"'
-Write-Host '  3. "Załaduj rozpakowane" i wskaż folder:'
+Write-Host (T 'inst.lastStep')
+Write-Host (T 'inst.step1')
+Write-Host (T 'inst.step2')
+Write-Host (T 'inst.step3')
 Write-Host "     $extDest" -ForegroundColor Cyan
 Write-Host ''
-Write-Host 'Menu otworzysz skrótem "FocusBlocker" w menu Start.'
+Write-Host (T 'inst.menu')
