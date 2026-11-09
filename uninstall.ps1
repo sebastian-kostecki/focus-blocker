@@ -20,7 +20,7 @@ if (Test-Path $lib) {
     . $lib
     $st = Get-FBStatus
     if ($st.Active) {
-        Write-Host "Blokada trwa do $(Format-FBWhen $st.Until). Odinstalowanie bedzie mozliwe po jej zakonczeniu." -ForegroundColor Yellow
+        Write-Host "Blokada trwa do $(Format-FBWhen $st.Until). Odinstalowanie będzie możliwe po jej zakończeniu." -ForegroundColor Yellow
         exit 2
     }
 }
@@ -39,4 +39,4 @@ Start-Sleep -Seconds 1
 Remove-Item $dest -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host 'FocusBlocker odinstalowany.' -ForegroundColor Green
-Write-Host 'Rozszerzenie usun recznie w chrome://extensions (lub edge://extensions).'
+Write-Host 'Rozszerzenie usuń ręcznie w chrome://extensions (lub edge://extensions).'

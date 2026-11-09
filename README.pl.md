@@ -1,4 +1,4 @@
-# FocusBlocker
+# <img src="docs/images/logo.svg" width="36" align="top" alt=""> FocusBlocker
 
 **Blokada stron dla Windows, której nie da się wyłączyć, gdy już trwa.**
 Blokuje rozpraszające strony (Facebook, Instagram, X, TikTok, Reddit…) w godzinach pracy –
@@ -16,7 +16,7 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/blocked-dark.png">
-    <img src="docs/images/blocked-light.png" width="620" alt="Strona blokady: zablokowana strona, Twój komunikat, czas do końca blokady i licznik prób">
+    <img src="docs/images/blocked-light.png" width="620" alt="Strona blokady: zablokowana strona, Twój komunikat, odliczanie do końca blokady i licznik prób">
   </picture>
 </p>
 
@@ -28,8 +28,10 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
 - **Blokada od razu** – 25 min, 50 min, 1,5 h, 2 h, do końca dnia albo własny czas (do 7 dni).
 - **Działa wszędzie** – blokada siedzi w pliku `hosts`, więc obejmuje każdą przeglądarkę i aplikację.
 - **Sama się naprawia** – ręcznie usunięte wpisy wracają w ciągu minuty.
-- **Strona z komunikatem** – zamiast błędu połączenia rozszerzenie pokazuje Twój tekst, czas do
-  końca blokady i licznik dzisiejszych prób. Tryb jasny i ciemny.
+- **Strona z komunikatem** – zamiast błędu połączenia rozszerzenie pokazuje Twój tekst,
+  odliczanie do końca blokady i licznik dzisiejszych prób. Tryb jasny i ciemny.
+- **Stan pod ręką** – kliknięcie ikony rozszerzenia na pasku przeglądarki pokazuje bieżącą
+  blokadę, harmonogram i listę stron.
 - **Zero zależności** – nic nie trzeba doinstalowywać.
 
 ## Instalacja
@@ -65,6 +67,15 @@ Uruchom skrót **FocusBlocker** z menu Start (Windows zapyta o uprawnienia admin
 | 3 | Dodawanie i usuwanie przedziałów harmonogramu, np. `pon-pt` 09:00–12:00 | tylko dodawanie |
 | 4 | Tekst wyświetlany na stronie blokady | tak |
 | 5 | Ostatnie wpisy w dzienniku | tak |
+
+Kliknij **ikonę FocusBlockera** na pasku przeglądarki, żeby zobaczyć stronę stanu:
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/status-dark.png">
+    <img src="docs/images/status-light.png" width="520" alt="Strona stanu: aktywna blokada z odliczaniem, harmonogram i lista blokowanych stron">
+  </picture>
+</p>
 
 Dni w harmonogramie wpisuje się po polsku lub angielsku: `pon-pt`, `pon,sr,pt`, `sob nd`,
 `codziennie`, `mon-fri`.

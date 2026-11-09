@@ -28,7 +28,7 @@ if (Test-Path (Join-Path $dest 'lib.ps1')) {
     . (Join-Path $dest 'lib.ps1')
     $st = Get-FBStatus
     if ($st.Active) {
-        Write-Host "Blokada trwa do $(Format-FBWhen $st.Until). Aktualizacja bedzie mozliwa po jej zakonczeniu." -ForegroundColor Yellow
+        Write-Host "Blokada trwa do $(Format-FBWhen $st.Until). Aktualizacja będzie możliwa po jej zakończeniu." -ForegroundColor Yellow
         exit 2
     }
     Remove-Variable FB_Dir
@@ -70,7 +70,7 @@ $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoi
     -StartWhenAvailable -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Minutes 2)
 Register-ScheduledTask -TaskName 'FocusBlocker' -Action $action -Trigger $everyMinute, $atStartup `
     -Principal $principal -Settings $settings -Force `
-    -Description 'Blokuje rozpraszajace strony (plik hosts) wg harmonogramu. Pliki: C:\ProgramData\FocusBlocker' | Out-Null
+    -Description 'Blokuje rozpraszające strony (plik hosts) wg harmonogramu. Pliki: C:\ProgramData\FocusBlocker' | Out-Null
 
 $action2 = New-ScheduledTaskAction -Execute $ps -Argument "$common `"$dest\server.ps1`""
 $settings2 = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries `
@@ -88,7 +88,7 @@ $s = $sh.CreateShortcut($lnk)
 $s.TargetPath = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
 $s.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$dest\focus.ps1`""
 $s.WorkingDirectory = $dest
-$s.Description = 'FocusBlocker - blokada rozpraszajacych stron'
+$s.Description = 'FocusBlocker – blokada rozpraszających stron'
 $s.Save()
 
 # 6. Pierwsza synchronizacja
@@ -97,10 +97,10 @@ $s.Save()
 Write-Host ''
 Write-Host "FocusBlocker zainstalowany w $dest" -ForegroundColor Green
 Write-Host ''
-Write-Host 'Ostatni krok - rozszerzenie z ladna strona blokady (Chrome lub Edge):'
-Write-Host '  1. Otworz chrome://extensions (w Edge: edge://extensions)'
-Write-Host '  2. Wlacz "Tryb dewelopera"'
-Write-Host '  3. "Zaladuj rozpakowane" i wskaz folder:'
+Write-Host 'Ostatni krok – rozszerzenie z ładną stroną blokady (Chrome lub Edge):'
+Write-Host '  1. Otwórz chrome://extensions (w Edge: edge://extensions)'
+Write-Host '  2. Włącz "Tryb dewelopera"'
+Write-Host '  3. "Załaduj rozpakowane" i wskaż folder:'
 Write-Host "     $extDest" -ForegroundColor Cyan
 Write-Host ''
-Write-Host 'Menu otworzysz skrotem "FocusBlocker" w menu Start.'
+Write-Host 'Menu otworzysz skrótem "FocusBlocker" w menu Start.'

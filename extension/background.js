@@ -77,3 +77,6 @@ chrome.runtime.onInstalled.addListener(setup);
 chrome.runtime.onStartup.addListener(setup);
 
 chrome.tabs.onRemoved.addListener((tabId) => recent.delete(tabId));
+
+// Kliknięcie ikony na pasku - otwórz stronę ze stanem blokady
+chrome.action.onClicked.addListener(() => chrome.tabs.create({ url: SERVER + '/' }));

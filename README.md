@@ -1,4 +1,4 @@
-# FocusBlocker
+# <img src="docs/images/logo.svg" width="36" align="top" alt=""> FocusBlocker
 
 **A website blocker for Windows that you can't switch off once it starts.**
 Blocks distracting sites (Facebook, Instagram, X, TikTok, Reddit…) during your working hours –
@@ -16,7 +16,7 @@ file and Task Scheduler.
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/images/blocked-dark.png">
-    <img src="docs/images/blocked-light.png" width="620" alt="Block page shown by the browser extension: the blocked site, your message, time left and today's attempt count">
+    <img src="docs/images/blocked-light.png" width="620" alt="Block page shown by the browser extension: the blocked site, your message, a live countdown and today's attempt count">
   </picture>
 </p>
 
@@ -33,7 +33,9 @@ file and Task Scheduler.
 - **Works everywhere** – blocking happens in the `hosts` file, so it covers every browser and app.
 - **Self-healing** – remove the entries by hand and they're back within a minute.
 - **Friendly block page** – instead of a connection error, the Chrome/Edge extension shows your
-  own message, the time left and how many times you've tried today. Light and dark mode.
+  own message, a live countdown and how many times you've tried today. Light and dark mode.
+- **Status at a glance** – click the extension's toolbar icon to see the current block, the
+  schedule and the site list.
 - **Zero dependencies** – nothing to download or install besides the scripts themselves.
 
 ## Installation
@@ -69,6 +71,15 @@ Launch **FocusBlocker** from the Start menu (Windows will ask for administrator 
 | 3 | Add or remove schedule ranges, e.g. `pon-pt` 09:00–12:00 | add only |
 | 4 | Message shown on the block page | yes |
 | 5 | Recent log entries | yes |
+
+Click the **FocusBlocker icon** in the browser toolbar to open the status page:
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/status-dark.png">
+    <img src="docs/images/status-light.png" width="520" alt="Status page: active block with a countdown, the weekly schedule and the list of blocked sites">
+  </picture>
+</p>
 
 Days can be typed in Polish or English: `pon-pt`, `pon,sr,pt`, `sob nd`, `codziennie`, `mon-fri`.
 
