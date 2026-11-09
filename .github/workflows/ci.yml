@@ -30,6 +30,11 @@ jobs:
           $r | Format-Table -AutoSize ScriptName, Line, RuleName, Message | Out-String -Width 200
           if ($r) { throw "PSScriptAnalyzer found $(@($r).Count) problem(s)" }
 
+      - name: Compile installer (Inno Setup)
+        run: |
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" /DAppVersion=0.0.0 installer\FocusBlocker.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
+
       - name: Pester
         run: |
           Import-Module Pester -RequiredVersion 6.2.0

@@ -6,3 +6,4 @@ hosts.backup
 # Pester output
 testResults.xml
 coverage.xml
+dist/

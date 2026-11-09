@@ -41,6 +41,14 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
 
 ## Instalacja
 
+**Instalator:** pobierz `FocusBlocker-Setup-<wersja>.exe` z [Releases](../../releases/latest),
+uruchom i zaakceptuj monit o uprawnienia administratora. Nie jest podpisany, więc SmartScreen może
+ostrzec („Więcej informacji” → „Uruchom mimo to”). Nie zainstaluje, nie zaktualizuje ani nie
+odinstaluje programu, gdy trwa blokada. Potem przejdź do kroku 3 poniżej (rozszerzenie zawsze
+ładuje się ręcznie).
+
+**Albo ręcznie z ZIP-a:**
+
 1. Pobierz `FocusBlocker-<wersja>.zip` z [Releases](../../releases/latest) i rozpakuj,
    np. do `Dokumenty` – powstanie folder `FocusBlocker`.
 2. Otwórz **PowerShell jako administrator** (Start → wpisz „PowerShell” → „Uruchom jako administrator”):

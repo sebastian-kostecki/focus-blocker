@@ -42,6 +42,13 @@ file and Task Scheduler.
 
 ## Installation
 
+**Installer:** download `FocusBlocker-Setup-<version>.exe` from [Releases](../../releases/latest),
+run it and accept the administrator prompt. It is unsigned, so Windows SmartScreen may warn
+("More info" → "Run anyway"). It won't install, update or uninstall while a block is active.
+Then continue with step 3 below (the browser extension is always loaded by hand).
+
+**Or manually from the ZIP:**
+
 1. Download `FocusBlocker-<version>.zip` from [Releases](../../releases/latest) and extract it,
    e.g. to `Documents` – you'll get a `FocusBlocker` folder.
 2. Open **PowerShell as administrator** and run:

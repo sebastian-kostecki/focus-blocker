@@ -28,10 +28,35 @@ jobs:
       - name: Build ZIP
         run: git archive --format=zip --prefix=FocusBlocker/ -o "FocusBlocker-${TAG}.zip" HEAD
 
-      - name: Create release
+      - name: Create release (or refresh the ZIP of an existing one)
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${TAG}" "FocusBlocker-${TAG}.zip" \
-            --title "FocusBlocker ${TAG}" \
-            --generate-notes
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" "FocusBlocker-${TAG}.zip" --clobber
+          else
+            gh release create "${TAG}" "FocusBlocker-${TAG}.zip" \
+              --title "FocusBlocker ${TAG}" \
+              --generate-notes
+          fi
+
+  installer:
+    needs: release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: refs/tags/${{ env.TAG }}
+
+      - name: Build installer (Inno Setup)
+        shell: powershell
+        run: |
+          $v = $env:TAG.TrimStart('v')
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DAppVersion=$v" installer\FocusBlocker.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed ($LASTEXITCODE)" }
+
+      - name: Attach to release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${TAG}" dist/FocusBlocker-Setup-*.exe --clobber

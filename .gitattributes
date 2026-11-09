@@ -5,3 +5,4 @@
 /.gitattributes                export-ignore
 /.gitignore                    export-ignore
 /PSScriptAnalyzerSettings.psd1 export-ignore
+/installer                     export-ignore
