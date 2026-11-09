@@ -1,4 +1,7 @@
 # Keep repo-only files out of release ZIPs and GitHub's "Download ZIP"
-/docs            export-ignore
-/.github         export-ignore
-/.gitattributes  export-ignore
+/docs                          export-ignore
+/tests                         export-ignore
+/.github                       export-ignore
+/.gitattributes                export-ignore
+/.gitignore                    export-ignore
+/PSScriptAnalyzerSettings.psd1 export-ignore

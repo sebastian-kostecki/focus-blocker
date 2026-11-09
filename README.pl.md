@@ -5,6 +5,7 @@ Blokuje rozpraszające strony (Facebook, Instagram, X, TikTok, Reddit…) w godz
 we wszystkich przeglądarkach i aplikacjach naraz. Korzysta tylko z tego, co ma Windows:
 PowerShella, pliku `hosts` i Harmonogramu zadań.
 
+[![CI](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml)
 [![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#instalacja)
 [![PowerShell 5.1](https://img.shields.io/badge/PowerShell-5.1-5391FE?logo=powershell&logoColor=white)](#jak-to-działa)
 [![Rozszerzenie Chrome | Edge](https://img.shields.io/badge/rozszerzenie-Chrome%20%7C%20Edge-4285F4?logo=googlechrome&logoColor=white)](extension/)
@@ -167,6 +168,18 @@ Obie operacje odmówią działania, dopóki trwa blokada.
 - Plik `hosts` nie obsługuje symboli wieloznacznych. Do domen głównych automatycznie dochodzą
   `www.` i `m.`; inne subdomeny dopisz osobno (rozszerzenie i tak łapie wszystkie subdomeny).
 - Rozszerzenie działa w Chrome i Edge. W Firefoksie blokada działa, ale bez strony z komunikatem.
+
+## Rozwój
+
+Testy korzystają z [Pestera](https://pester.dev) 5+ i działają w folderze tymczasowym – prawdziwy
+plik `hosts` nie jest ruszany. Każdy push sprawdzają GitHub Actions: PSScriptAnalyzer i Pester
+w Windows PowerShell 5.1.
+
+```powershell
+Install-Module Pester, PSScriptAnalyzer -Scope CurrentUser -SkipPublisherCheck
+Invoke-Pester .\tests
+Invoke-ScriptAnalyzer -Path . -Recurse -Settings .\PSScriptAnalyzerSettings.psd1
+```
 
 ## Licencja
 

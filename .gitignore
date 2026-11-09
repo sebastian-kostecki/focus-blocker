@@ -1,0 +1,8 @@
+# Runtime files created next to the scripts when testing locally
+blocker.log
+state.json
+hosts.backup
+
+# Pester output
+testResults.xml
+coverage.xml

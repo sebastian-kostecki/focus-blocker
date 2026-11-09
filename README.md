@@ -5,6 +5,7 @@ Blocks distracting sites (Facebook, Instagram, X, TikTok, Reddit…) during your
 in every browser and app – using only what already ships with Windows: PowerShell, the `hosts`
 file and Task Scheduler.
 
+[![CI](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml)
 [![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#installation)
 [![PowerShell 5.1](https://img.shields.io/badge/PowerShell-5.1-5391FE?logo=powershell&logoColor=white)](#how-it-works)
 [![Chrome | Edge extension](https://img.shields.io/badge/extension-Chrome%20%7C%20Edge-4285F4?logo=googlechrome&logoColor=white)](extension/)
@@ -168,6 +169,18 @@ Both refuse to run while a block is active.
 - The `hosts` file has no wildcards. `www.` and `m.` are added to root domains automatically;
   other subdomains need their own line (the extension catches all subdomains anyway).
 - The extension works in Chrome and Edge. In Firefox the block works, but without the message page.
+
+## Development
+
+Tests use [Pester](https://pester.dev) 5+ and run in a temporary folder – your real `hosts` file
+is never touched. Every push is checked on GitHub Actions with PSScriptAnalyzer and Pester under
+Windows PowerShell 5.1.
+
+```powershell
+Install-Module Pester, PSScriptAnalyzer -Scope CurrentUser -SkipPublisherCheck
+Invoke-Pester .\tests
+Invoke-ScriptAnalyzer -Path . -Recurse -Settings .\PSScriptAnalyzerSettings.psd1
+```
 
 ## License
 

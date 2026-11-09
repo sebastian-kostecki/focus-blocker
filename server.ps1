@@ -16,7 +16,7 @@ $ErrorActionPreference = 'Stop'
 
 $attempts = @{}   # liczba prób wejścia na zablokowane strony, per dzień
 
-function ConvertTo-Html([string]$Text) { return [System.Net.WebUtility]::HtmlEncode($Text) }
+function ConvertTo-HtmlText([string]$Text) { return [System.Net.WebUtility]::HtmlEncode($Text) }
 
 function Send-Response($Ctx, [int]$Code, [string]$Type, [string]$Body) {
     $bytes = [Text.Encoding]::UTF8.GetBytes($Body)
@@ -180,8 +180,8 @@ function Get-BlockedPage([string]$Site) {
     }
     $count = if ($attempts.ContainsKey($day)) { $attempts[$day] } else { 0 }
 
-    $site = if ($Site) { ConvertTo-Html $Site } else { 'Ta strona' }
-    $msg  = ConvertTo-Html $st.Message
+    $site = if ($Site) { ConvertTo-HtmlText $Site } else { 'Ta strona' }
+    $msg  = ConvertTo-HtmlText $st.Message
     # Przycisk powrotu tylko dla poprawnej nazwy domeny (trafia do atrybutu href)
     $domain = if ($Site) { $Site.ToLowerInvariant() } else { '' }
     $goBack = if ($domain -match '^[a-z0-9-]+(\.[a-z0-9-]+)+$') { "<a class=""btn"" href=""https://$domain/"">Przejdź do $domain</a>" } else { '' }
@@ -220,7 +220,7 @@ function Get-IndexPage {
         $top = @"
   <span class="pill on">Blokada aktywna</span>
   <h1>Skup się – strony są zablokowane</h1>
-  <p class="sub">Powód: $(ConvertTo-Html $st.Reason)</p>
+  <p class="sub">Powód: $(ConvertTo-HtmlText $st.Reason)</p>
 $(Get-CountdownHtml 'Do końca blokady zostało' $st.Until 'reload')
 "@
     } elseif ($st.NextStart) {
@@ -238,13 +238,13 @@ $(Get-CountdownHtml 'Następna blokada za' $st.NextStart 'reload')
     }
 
     $sched = @($st.Config.Schedule | ForEach-Object {
-        "    <li>$(ConvertTo-Html (Format-FBDays $_.Days)) <span>$(ConvertTo-Html $_.From)–$(ConvertTo-Html $_.To)</span></li>"
+        "    <li>$(ConvertTo-HtmlText (Format-FBDays $_.Days)) <span>$(ConvertTo-HtmlText $_.From)–$(ConvertTo-HtmlText $_.To)</span></li>"
     })
     $schedHtml = if ($sched.Count) { "  <ul class=""rows"">`r`n" + ($sched -join "`r`n") + "`r`n  </ul>" } else { '  <p class="empty">Brak przedziałów.</p>' }
 
     $list = @(Get-FBListEntries)
     $listHtml = if ($list.Count) {
-        '  <div class="chips">' + (($list | ForEach-Object { '<span>' + (ConvertTo-Html $_) + '</span>' }) -join '') + '</div>'
+        '  <div class="chips">' + (($list | ForEach-Object { '<span>' + (ConvertTo-HtmlText $_) + '</span>' }) -join '') + '</div>'
     } else { '  <p class="empty">Lista jest pusta.</p>' }
 
     $body = @"
