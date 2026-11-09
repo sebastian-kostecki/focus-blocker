@@ -55,6 +55,7 @@ function Write-FBLog([string]$Message) {
 }
 
 function Test-FBAdmin {
+    if ($FB_FakeAdmin) { return $true }   # tylko do testów menu
     if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows) { return $true }   # testy poza Windows
     $id = [Security.Principal.WindowsIdentity]::GetCurrent()
     return ([Security.Principal.WindowsPrincipal]$id).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
@@ -230,6 +231,37 @@ function Get-FBScheduleEnd($Intervals, [datetime]$At) {
     return $end
 }
 
+# Początek przedziału, który obejmuje chwilę $At, albo $null
+function Get-FBIntervalStartAt($Intervals, [datetime]$At) {
+    $t = $At.TimeOfDay
+    $today = $At.DayOfWeek.ToString()
+    $yday = $At.AddDays(-1).DayOfWeek.ToString()
+    $best = $null
+    foreach ($iv in @($Intervals)) {
+        $start = $null
+        if ($iv.From -lt $iv.To) {
+            if ($iv.Days -contains $today -and $t -ge $iv.From -and $t -lt $iv.To) { $start = $At.Date + $iv.From }
+        } elseif ($iv.From -gt $iv.To) {
+            if ($iv.Days -contains $today -and $t -ge $iv.From) { $start = $At.Date + $iv.From }
+            elseif ($iv.Days -contains $yday -and $t -lt $iv.To) { $start = $At.Date.AddDays(-1) + $iv.From }
+        }
+        if ($start -and (-not $best -or $start -lt $best)) { $best = $start }
+    }
+    return $best
+}
+
+# Początek ciągłej blokady z harmonogramu (łączy przedziały stykające się lub nakładające)
+function Get-FBScheduleStart($Intervals, [datetime]$At) {
+    $start = Get-FBIntervalStartAt $Intervals $At
+    if (-not $start) { return $null }
+    for ($i = 0; $i -lt 50; $i++) {
+        $prev = Get-FBIntervalStartAt $Intervals $start.AddSeconds(-1)
+        if (-not $prev -or $prev -ge $start) { break }
+        $start = $prev
+    }
+    return $start
+}
+
 # Najbliższy początek przedziału po $At
 function Get-FBNextStart($Intervals, [datetime]$At) {
     $best = $null
@@ -312,10 +344,23 @@ function Get-FBOverrideUntil {
     return $null
 }
 
+# Kiedy zaczęła się blokada ręczna (do paska postępu); $null dla starszych wpisów
+function Get-FBOverrideFrom {
+    if (-not (Get-FBOverrideUntil) -or -not (Test-Path $FB_StatePath)) { return $null }
+    try {
+        $s = Get-Content $FB_StatePath -Raw | ConvertFrom-Json
+        if (-not $s.overrideFrom) { return $null }
+        if ($s.overrideFrom -is [datetime]) { return $s.overrideFrom }
+        return [datetime]::Parse([string]$s.overrideFrom, $FB_Inv)
+    } catch { return $null }
+}
+
 function Start-FBManualBlock([datetime]$Until) {
     $current = Get-FBOverrideUntil
     if ($current -and $current -ge $Until) { return $current }   # nigdy nie skracamy
+    $from = if ($current) { Get-FBOverrideFrom } else { Get-FBNow }   # przedłużenie zachowuje początek
     $obj = [ordered]@{ overrideUntil = $Until.ToString('s', $FB_Inv) }
+    if ($from) { $obj.overrideFrom = $from.ToString('s', $FB_Inv) }
     (ConvertTo-Json -InputObject $obj) | Set-Content -Path $FB_StatePath -Encoding UTF8
     Write-FBLog (T 'log.manual' $Until.ToString('yyyy-MM-dd HH:mm'))
     [void](Invoke-FBAuto)
@@ -337,6 +382,15 @@ function Get-FBStatus {
         $until = $manual
         $reason = if ($schedEnd) { 'schedule+manual' } else { 'manual' }
     }
+    # początek blokady (najwcześniejszy ze źródeł) - tylko do paska postępu
+    $since = $null
+    if ($until) {
+        $cands = @()
+        if ($schedEnd) { $cands += Get-FBScheduleStart $iv $now }
+        if ($manual) { $f = Get-FBOverrideFrom; if ($f) { $cands += $f } }
+        $cands = @($cands | Where-Object { $_ })
+        if ($cands.Count) { $since = ($cands | Sort-Object | Select-Object -First 1) }
+    }
     # jeśli po końcu blokady od razu zaczyna się kolejny przedział - doliczamy go
     if ($until) {
         for ($i = 0; $i -lt 20; $i++) {
@@ -350,6 +404,7 @@ function Get-FBStatus {
         Active    = [bool]$until
         Reason    = $reason
         Until     = $until
+        Since     = $since
         NextStart = if ($until) { $null } else { Get-FBNextStart $iv $now }
         Domains   = @(Get-FBDomains)
         Message   = $cfg.Message

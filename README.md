@@ -35,7 +35,9 @@ file and Task Scheduler.
 - **Status at a glance** – click the extension's toolbar icon to see the current block, the
   schedule and the site list.
 - **English and Polish** – the terminal menu, block page and extension follow your Windows
-  language and can be switched in the menu (option 6) at any time.
+  language and can be switched in the menu (key `J`) at any time.
+- **Live terminal dashboard** – one-key navigation, a ticking countdown with a progress bar,
+  today's attempt count and a week grid for the schedule.
 - **Zero dependencies** – nothing to download or install besides the scripts themselves.
 
 ## Installation
@@ -64,14 +66,26 @@ Launch **FocusBlocker** from the Start menu (Windows will ask for administrator 
   <img src="docs/images/terminal-menu.png" width="620" alt="FocusBlocker terminal menu showing an active block until 17:00">
 </p>
 
-| Option | What it does | While a block is active |
+The dashboard is driven by single key presses: move with <kbd>↑</kbd> <kbd>↓</kbd> and press
+<kbd>Enter</kbd>, or just press the shortcut letter. <kbd>Esc</kbd> goes back. The countdown ticks
+live, and the progress bar shows how much of the block has passed. Starting a block always asks
+you to type `YES`, so it can't happen by accident.
+
+| Key | What it does | While a block is active |
 |---|---|---|
-| 1 | Start a block now: 25 min, 50 min, 1.5 h, 2 h, until end of day or a custom time (`90` or `16:30`) | extend only |
-| 2 | Add or remove sites (several at once, comma-separated) | add only |
-| 3 | Add or remove schedule ranges, e.g. `mon-fri` 09:00–12:00 | add only |
-| 4 | Message shown on the block page | yes |
-| 5 | Recent log entries | yes |
-| 6 | Interface language (English / Polski) | yes |
+| `1` `2` `3` `4` | Quick start: 25 min, 50 min, 1.5 h, 2 h | extends the block by that time |
+| `B` | Start a block now: the quick options, until end of day or a custom time (`90` or `16:30`) | extend only |
+| `S` | Sites: add (several at once, comma-separated) or remove | add only |
+| `H` | Weekly hours: a week grid with a "now" marker; add or remove ranges, e.g. `mon-fri` 09:00–12:00 | add only |
+| `M` | Message shown on the block page | yes |
+| `L` | Recent log entries | yes |
+| `J` | Interface language (English / Polski) | yes |
+
+<p align="center">
+  <img src="docs/images/terminal-schedule.png" width="620" alt="Weekly hours: a grid of the week with blocked hours in red and a marker for the current time">
+</p>
+
+If your terminal font lacks box and block characters, set `FOCUSBLOCKER_ASCII=1` for a plain-ASCII look.
 
 Click the **FocusBlocker icon** in the browser toolbar to open the status page:
 

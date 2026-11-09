@@ -181,6 +181,54 @@ Describe 'Get-FBStatus' {
         $st.Reason | Should -Be 'manual+schedule'
     }
 
+    Context 'początek blokady (Since) do paska postępu' {
+        It 'harmonogram: początek przedziału' {
+            Set-TestSchedule @($WorkWeek)
+            $FB_FakeNow = $Mon.AddHours(14).AddMinutes(47)
+            (Get-FBStatus).Since | Should -Be $Mon.AddHours(9)
+        }
+        It 'przedział przez północ: początek poprzedniego dnia' {
+            Set-TestSchedule @(@{ days = @('Mon'); from = '22:00'; to = '02:00' })
+            $FB_FakeNow = $Mon.AddDays(1).AddHours(1)
+            (Get-FBStatus).Since | Should -Be $Mon.AddHours(22)
+        }
+        It 'stykające się przedziały: początek pierwszego' {
+            Set-TestSchedule @(
+                @{ days = @('Mon'); from = '09:00'; to = '12:00' }
+                @{ days = @('Mon'); from = '12:00'; to = '17:00' }
+            )
+            $FB_FakeNow = $Mon.AddHours(15)
+            (Get-FBStatus).Since | Should -Be $Mon.AddHours(9)
+        }
+        It 'blokada ręczna: chwila włączenia, przedłużenie jej nie zmienia' {
+            Set-TestSchedule @()
+            $FB_FakeNow = $Mon.AddHours(10)
+            [void](Start-FBManualBlock $Mon.AddHours(11))
+            $FB_FakeNow = $Mon.AddHours(10).AddMinutes(30)
+            [void](Start-FBManualBlock $Mon.AddHours(13))
+            (Get-FBStatus).Since | Should -Be $Mon.AddHours(10)
+        }
+        It 'schedule+manual: wcześniejszy z początków' {
+            Set-TestSchedule @($WorkWeek)
+            $FB_FakeNow = $Mon.AddHours(15)
+            [void](Start-FBManualBlock $Mon.AddHours(19))
+            (Get-FBStatus).Since | Should -Be $Mon.AddHours(9)
+        }
+        It 'brak blokady: Since jest pusty' {
+            Set-TestSchedule @($WorkWeek)
+            $FB_FakeNow = $Mon.AddHours(18)
+            (Get-FBStatus).Since | Should -BeNullOrEmpty
+        }
+        It 'stary state.json bez overrideFrom: brak początku, ale blokada działa' {
+            Set-TestSchedule @()
+            $FB_FakeNow = $Mon.AddHours(10)
+            [IO.File]::WriteAllText($FB_StatePath, ('{"overrideUntil":"' + $Mon.AddHours(12).ToString('s') + '"}'))
+            $st = Get-FBStatus
+            $st.Active | Should -BeTrue
+            $st.Since | Should -BeNullOrEmpty
+        }
+    }
+
     It 'wygasła blokada ręczna jest ignorowana' {
         Set-TestSchedule @()
         $FB_FakeNow = $Mon.AddHours(8)

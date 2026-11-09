@@ -34,7 +34,9 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
 - **Stan pod ręką** – kliknięcie ikony rozszerzenia na pasku przeglądarki pokazuje bieżącą
   blokadę, harmonogram i listę stron.
 - **Polski i angielski** – menu w terminalu, strona blokady i rozszerzenie podążają za językiem
-  Windows i można je w każdej chwili przełączyć w menu (opcja 6).
+  Windows i można je w każdej chwili przełączyć w menu (klawisz `J`).
+- **Pulpit w terminalu na żywo** – nawigacja jednym klawiszem, tykające odliczanie z paskiem
+  postępu, dzisiejszy licznik prób i siatka tygodnia dla harmonogramu.
 - **Zero zależności** – nic nie trzeba doinstalowywać.
 
 ## Instalacja
@@ -63,14 +65,27 @@ Uruchom skrót **FocusBlocker** z menu Start (Windows zapyta o uprawnienia admin
   <img src="docs/images/terminal-menu-pl.png" width="620" alt="Menu FocusBlockera w terminalu z aktywną blokadą do 17:00">
 </p>
 
-| Opcja | Co robi | W trakcie blokady |
+Pulpit obsługuje się pojedynczymi klawiszami: strzałki <kbd>↑</kbd> <kbd>↓</kbd> i <kbd>Enter</kbd>
+albo od razu litera skrótu. <kbd>Esc</kbd> cofa. Odliczanie tyka na żywo, a pasek postępu pokazuje,
+ile blokady już minęło. Włączenie blokady zawsze wymaga wpisania `TAK`, więc nie zrobisz tego
+przypadkiem.
+
+| Klawisz | Co robi | W trakcie blokady |
 |---|---|---|
-| 1 | Blokada od razu: 25 min, 50 min, 1,5 h, 2 h, do końca dnia albo własny czas (np. `90` lub `16:30`) | tylko przedłużenie |
-| 2 | Dodawanie i usuwanie stron (można dodać kilka po przecinku) | tylko dodawanie |
-| 3 | Dodawanie i usuwanie przedziałów harmonogramu, np. `pon-pt` 09:00–12:00 | tylko dodawanie |
-| 4 | Tekst wyświetlany na stronie blokady | tak |
-| 5 | Ostatnie wpisy w dzienniku | tak |
-| 6 | Język interfejsu (Polski / English) | tak |
+| `1` `2` `3` `4` | Szybki start: 25 min, 50 min, 1,5 h, 2 h | przedłuża blokadę o ten czas |
+| `B` | Blokada od razu: opcje jak wyżej, do końca dnia albo własny czas (np. `90` lub `16:30`) | tylko przedłużenie |
+| `S` | Lista stron: dodawanie (kilka po przecinku) i usuwanie | tylko dodawanie |
+| `H` | Harmonogram: siatka tygodnia ze znacznikiem „teraz”; dodawanie i usuwanie przedziałów, np. `pon-pt` 09:00–12:00 | tylko dodawanie |
+| `K` | Tekst wyświetlany na stronie blokady | tak |
+| `D` | Ostatnie wpisy w dzienniku | tak |
+| `J` | Język interfejsu (Polski / English) | tak |
+
+<p align="center">
+  <img src="docs/images/terminal-schedule-pl.png" width="620" alt="Harmonogram: siatka tygodnia z godzinami blokady na czerwono i znacznikiem bieżącej chwili">
+</p>
+
+Jeśli czcionka terminala nie ma znaków ramek i bloków, ustaw `FOCUSBLOCKER_ASCII=1`, a pulpit użyje
+zwykłych znaków ASCII.
 
 Kliknij **ikonę FocusBlockera** na pasku przeglądarki, żeby zobaczyć stronę stanu:
 

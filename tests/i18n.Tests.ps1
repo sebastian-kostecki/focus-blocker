@@ -60,6 +60,20 @@ Describe 'Tabela tekstów' {
         $unused | Should -BeNullOrEmpty
     }
 
+    It 'teksty rysowane w jednej linii pulpitu mieszczą się w 58 znakach' {
+        # dłuższa linia zawinęłaby się w terminalu i zepsuła rysowanie ekranu
+        $keys = @($FB_Text.pl.Keys | Where-Object { $_ -match '^(ui\.help|list\.help|sched\.help|msg\.hint|list\.hint|sched\.title|sched\.legend|block\.typeToConfirm|sched\.confirm|st\.)' })
+        $keys.Count | Should -BeGreaterThan 10
+        $tooLong = foreach ($l in 'pl', 'en') {
+            foreach ($k in $keys) {
+                $fill = if ($k -match 'confirm|typeToConfirm') { 'XXX' } else { 'XXXXXXXXXXXX' }   # słowo TAK/YES albo ~12 znaków (godzina, czas)
+                $filled = [regex]::Replace($FB_Text[$l][$k], '\{\d+[^}]*\}', $fill)
+                if ($filled.Length -gt 58) { "$l/$k ($($filled.Length))" }
+            }
+        }
+        $tooLong | Should -BeNullOrEmpty
+    }
+
     It 'T zwraca klucz, gdy tekstu brak' {
         T 'no.such.key' | Should -Be 'no.such.key'
     }
@@ -67,7 +81,7 @@ Describe 'Tabela tekstów' {
     It 'T wypełnia placeholdery' {
         $FB_State.Lang = 'en'
         T 'dur.lessThanMinute' | Should -Be 'less than a minute'
-        T 'menu.next' '14:00' | Should -Be '   next: 14:00'
+        T 'st.next' '14:00' '5 min' | Should -Be 'next: 14:00 (in 5 min)'
     }
 }
 

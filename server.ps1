@@ -28,6 +28,13 @@ function Send-Response($Ctx, [int]$Code, [string]$Type, [string]$Body) {
     $r.OutputStream.Write($bytes, 0, $bytes.Length)
 }
 
+# Dzisiejsza liczba prób wejścia na zablokowane strony (pokazuje ją też menu w terminalu)
+function Get-TodayAttempts {
+    $day = (Get-FBNow).ToString('yyyy-MM-dd')
+    if ($attempts.ContainsKey($day)) { return [int]$attempts[$day] }
+    return 0
+}
+
 function Get-StatusJson {
     $st = Get-FBStatus
     $obj = [ordered]@{
@@ -35,6 +42,7 @@ function Get-StatusJson {
         reason  = $st.Reason
         until   = if ($st.Until) { $st.Until.ToString('s', $FB_Inv) } else { $null }
         domains = [string[]]@($st.Domains | ForEach-Object { $_ -replace '^(www|m)\.', '' } | Sort-Object -Unique)
+        tries   = Get-TodayAttempts
     }
     return (ConvertTo-Json -InputObject $obj -Compress)
 }
