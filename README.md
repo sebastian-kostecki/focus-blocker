@@ -1,18 +1,29 @@
-# <img src="docs/images/logo.svg" width="36" align="top" alt=""> FocusBlocker
+<div align="center">
+
+<img src="docs/images/logo.svg" width="96" height="96" alt="FocusBlocker logo">
+
+# FocusBlocker
 
 **A website blocker for Windows that you can't switch off once it starts.**
+
+[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/focus-blocker?style=for-the-badge&logo=github)](../../releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/focus-blocker/ci.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](../../actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+[![No dependencies](https://img.shields.io/badge/Dependencies-none-brightgreen?style=for-the-badge)](#how-it-works)
+
+[![Windows 10 | 11](https://img.shields.io/badge/Windows_10_%7C_11-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#installation)
+[![PowerShell 5.1](https://img.shields.io/badge/PowerShell_5.1-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](#how-it-works)
+[![Chrome | Edge](https://img.shields.io/badge/Extension-Chrome_%7C_Edge-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](extension/)
+
+[Download](../../releases/latest) · [Report a bug](../../issues/new)
+
+**English** · [Polski](README.pl.md)
+
+</div>
+
 Blocks distracting sites (Facebook, Instagram, X, TikTok, Reddit…) during your working hours –
 in every browser and app – using only what already ships with Windows: PowerShell, the `hosts`
 file and Task Scheduler.
-
-[![CI](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml)
-[![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#installation)
-[![PowerShell 5.1](https://img.shields.io/badge/PowerShell-5.1-5391FE?logo=powershell&logoColor=white)](#how-it-works)
-[![Chrome | Edge extension](https://img.shields.io/badge/extension-Chrome%20%7C%20Edge-4285F4?logo=googlechrome&logoColor=white)](extension/)
-[![No dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](#how-it-works)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-
-🇵🇱 [Polska wersja README](README.pl.md)
 
 <p align="center">
   <picture>
