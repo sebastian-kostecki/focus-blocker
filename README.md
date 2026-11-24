@@ -6,8 +6,8 @@
 
 **A website blocker for Windows that you can't switch off once it starts.**
 
-[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/focus-blocker?style=for-the-badge&logo=github)](../../releases/latest)
-[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/focus-blocker/ci.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](../../actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/focus-blocker?style=for-the-badge&logo=github)](https://github.com/sebastian-kostecki/focus-blocker/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/focus-blocker/ci.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![No dependencies](https://img.shields.io/badge/Dependencies-none-brightgreen?style=for-the-badge)](#how-it-works)
 
@@ -15,7 +15,7 @@
 [![PowerShell 5.1](https://img.shields.io/badge/PowerShell_5.1-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](#how-it-works)
 [![Chrome | Edge](https://img.shields.io/badge/Extension-Chrome_%7C_Edge-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](extension/)
 
-[Download](../../releases/latest) · [Report a bug](../../issues/new)
+[Download](https://github.com/sebastian-kostecki/focus-blocker/releases/latest) · [Report a bug](https://github.com/sebastian-kostecki/focus-blocker/issues/new)
 
 **English** · [Polski](README.pl.md)
 
@@ -53,14 +53,14 @@ file and Task Scheduler.
 
 ## Installation
 
-**Installer:** download `FocusBlocker-Setup-<version>.exe` from [Releases](../../releases/latest),
+**Installer:** download `FocusBlocker-Setup-<version>.exe` from [Releases](https://github.com/sebastian-kostecki/focus-blocker/releases/latest),
 run it and accept the administrator prompt. It is unsigned, so Windows SmartScreen may warn
 ("More info" → "Run anyway"). It won't install, update or uninstall while a block is active.
 Then continue with step 3 below (the browser extension is always loaded by hand).
 
 **Or manually from the ZIP:**
 
-1. Download `FocusBlocker-<version>.zip` from [Releases](../../releases/latest) and extract it,
+1. Download `FocusBlocker-<version>.zip` from [Releases](https://github.com/sebastian-kostecki/focus-blocker/releases/latest) and extract it,
    e.g. to `Documents` – you'll get a `FocusBlocker` folder.
 2. Open **PowerShell as administrator** and run:
 

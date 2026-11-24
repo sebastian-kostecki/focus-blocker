@@ -6,8 +6,8 @@
 
 **Blokada stron dla Windows, której nie da się wyłączyć, gdy już trwa.**
 
-[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/focus-blocker?style=for-the-badge&logo=github)](../../releases/latest)
-[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/focus-blocker/ci.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](../../actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/focus-blocker?style=for-the-badge&logo=github)](https://github.com/sebastian-kostecki/focus-blocker/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/focus-blocker/ci.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml)
 [![Licencja: MIT](https://img.shields.io/badge/Licencja-MIT-blue?style=for-the-badge)](LICENSE)
 [![Bez zależności](https://img.shields.io/badge/Zale%C5%BCno%C5%9Bci-brak-brightgreen?style=for-the-badge)](#jak-to-działa)
 
@@ -15,7 +15,7 @@
 [![PowerShell 5.1](https://img.shields.io/badge/PowerShell_5.1-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](#jak-to-działa)
 [![Chrome | Edge](https://img.shields.io/badge/Rozszerzenie-Chrome_%7C_Edge-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](extension/)
 
-[Pobierz](../../releases/latest) · [Zgłoś błąd](../../issues/new)
+[Pobierz](https://github.com/sebastian-kostecki/focus-blocker/releases/latest) · [Zgłoś błąd](https://github.com/sebastian-kostecki/focus-blocker/issues/new)
 
 [English](README.md) · **Polski**
 
@@ -52,7 +52,7 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
 
 ## Instalacja
 
-**Instalator:** pobierz `FocusBlocker-Setup-<wersja>.exe` z [Releases](../../releases/latest),
+**Instalator:** pobierz `FocusBlocker-Setup-<wersja>.exe` z [Releases](https://github.com/sebastian-kostecki/focus-blocker/releases/latest),
 uruchom i zaakceptuj monit o uprawnienia administratora. Nie jest podpisany, więc SmartScreen może
 ostrzec („Więcej informacji” → „Uruchom mimo to”). Nie zainstaluje, nie zaktualizuje ani nie
 odinstaluje programu, gdy trwa blokada. Potem przejdź do kroku 3 poniżej (rozszerzenie zawsze
@@ -60,7 +60,7 @@ odinstaluje programu, gdy trwa blokada. Potem przejdź do kroku 3 poniżej (rozs
 
 **Albo ręcznie z ZIP-a:**
 
-1. Pobierz `FocusBlocker-<wersja>.zip` z [Releases](../../releases/latest) i rozpakuj,
+1. Pobierz `FocusBlocker-<wersja>.zip` z [Releases](https://github.com/sebastian-kostecki/focus-blocker/releases/latest) i rozpakuj,
    np. do `Dokumenty` – powstanie folder `FocusBlocker`.
 2. Otwórz **PowerShell jako administrator** (Start → wpisz „PowerShell” → „Uruchom jako administrator”):
 
