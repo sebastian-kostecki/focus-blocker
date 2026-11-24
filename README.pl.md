@@ -1,18 +1,29 @@
-# <img src="docs/images/logo.svg" width="36" align="top" alt=""> FocusBlocker
+<div align="center">
+
+<img src="docs/images/logo.svg" width="96" height="96" alt="Logo FocusBlocker">
+
+# FocusBlocker
 
 **Blokada stron dla Windows, której nie da się wyłączyć, gdy już trwa.**
+
+[![Release](https://img.shields.io/github/v/release/sebastian-kostecki/focus-blocker?style=for-the-badge&logo=github)](https://github.com/sebastian-kostecki/focus-blocker/releases/latest)
+[![CI](https://img.shields.io/github/actions/workflow/status/sebastian-kostecki/focus-blocker/ci.yml?branch=main&style=for-the-badge&label=CI&logo=githubactions&logoColor=white)](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml)
+[![Licencja: MIT](https://img.shields.io/badge/Licencja-MIT-blue?style=for-the-badge)](LICENSE)
+[![Bez zależności](https://img.shields.io/badge/Zale%C5%BCno%C5%9Bci-brak-brightgreen?style=for-the-badge)](#jak-to-działa)
+
+[![Windows 10 | 11](https://img.shields.io/badge/Windows_10_%7C_11-0078D4?style=for-the-badge&logo=windows&logoColor=white)](#instalacja)
+[![PowerShell 5.1](https://img.shields.io/badge/PowerShell_5.1-5391FE?style=for-the-badge&logo=powershell&logoColor=white)](#jak-to-działa)
+[![Chrome | Edge](https://img.shields.io/badge/Rozszerzenie-Chrome_%7C_Edge-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white)](extension/)
+
+[Pobierz](https://github.com/sebastian-kostecki/focus-blocker/releases/latest) · [Zgłoś błąd](https://github.com/sebastian-kostecki/focus-blocker/issues/new)
+
+[English](README.md) · **Polski**
+
+</div>
+
 Blokuje rozpraszające strony (Facebook, Instagram, X, TikTok, Reddit…) w godzinach pracy –
 we wszystkich przeglądarkach i aplikacjach naraz. Korzysta tylko z tego, co ma Windows:
 PowerShella, pliku `hosts` i Harmonogramu zadań.
-
-[![CI](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml/badge.svg)](https://github.com/sebastian-kostecki/focus-blocker/actions/workflows/ci.yml)
-[![Windows 10 | 11](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?logo=windows&logoColor=white)](#instalacja)
-[![PowerShell 5.1](https://img.shields.io/badge/PowerShell-5.1-5391FE?logo=powershell&logoColor=white)](#jak-to-działa)
-[![Rozszerzenie Chrome | Edge](https://img.shields.io/badge/rozszerzenie-Chrome%20%7C%20Edge-4285F4?logo=googlechrome&logoColor=white)](extension/)
-[![Bez zależności](https://img.shields.io/badge/zale%C5%BCno%C5%9Bci-brak-brightgreen)](#jak-to-działa)
-[![Licencja: MIT](https://img.shields.io/badge/licencja-MIT-green)](LICENSE)
-
-🇬🇧 [English README](README.md)
 
 <p align="center">
   <picture>
@@ -41,7 +52,7 @@ PowerShella, pliku `hosts` i Harmonogramu zadań.
 
 ## Instalacja
 
-**Instalator:** pobierz `FocusBlocker-Setup-<wersja>.exe` z [Releases](../../releases/latest),
+**Instalator:** pobierz `FocusBlocker-Setup-<wersja>.exe` z [Releases](https://github.com/sebastian-kostecki/focus-blocker/releases/latest),
 uruchom i zaakceptuj monit o uprawnienia administratora. Nie jest podpisany, więc SmartScreen może
 ostrzec („Więcej informacji” → „Uruchom mimo to”). Nie zainstaluje, nie zaktualizuje ani nie
 odinstaluje programu, gdy trwa blokada. Potem przejdź do kroku 3 poniżej (rozszerzenie zawsze
@@ -49,7 +60,7 @@ odinstaluje programu, gdy trwa blokada. Potem przejdź do kroku 3 poniżej (rozs
 
 **Albo ręcznie z ZIP-a:**
 
-1. Pobierz `FocusBlocker-<wersja>.zip` z [Releases](../../releases/latest) i rozpakuj,
+1. Pobierz `FocusBlocker-<wersja>.zip` z [Releases](https://github.com/sebastian-kostecki/focus-blocker/releases/latest) i rozpakuj,
    np. do `Dokumenty` – powstanie folder `FocusBlocker`.
 2. Otwórz **PowerShell jako administrator** (Start → wpisz „PowerShell” → „Uruchom jako administrator”):
 
